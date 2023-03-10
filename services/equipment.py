@@ -18,7 +18,16 @@ def get_equipment_info():
         Equipments.type_equipment,
         Equipments.model_equipment,
         Equipments.latitude,
-        Equipments.longitude).all()   
+        Equipments.longitude,
+        Equipments.number_sim_1,
+        Equipments.iccid_1,
+        Equipments.operator_1,
+        Equipments.number_sim_2,
+        Equipments.iccid_2,
+        Equipments.operator_2,
+        Equipments.number_sim_3,
+        Equipments.iccid_3,
+        Equipments.operator_3).all()   
     
     if len(equipment_info) != 0:
         for line_equipment_info in equipment_info:
@@ -29,7 +38,17 @@ def get_equipment_info():
                 "type_equipment": line_equipment_info.type_equipment,
                 "model_equipment": line_equipment_info.model_equipment,
                 "latitude": line_equipment_info.latitude,
-                "longitude": line_equipment_info.longitude            
+                "longitude": line_equipment_info.longitude,
+                "number_sim_1": line_equipment_info.number_sim_1,
+                "iccid_1": line_equipment_info.iccid_1,
+                "operator_1": line_equipment_info.operator_1,
+                "number_sim_2": line_equipment_info.number_sim_2,
+                "iccid_2": line_equipment_info.iccid_2,
+                "operator_2": line_equipment_info.operator_2,
+                "number_sim_3": line_equipment_info.number_sim_3,
+                "iccid_3": line_equipment_info.iccid_3,
+                "operator_3": line_equipment_info.operator_3
+                            
             } 
             list_equipment.append(dict_equipment_info)      
     else:
@@ -40,7 +59,16 @@ def get_equipment_info():
                 "type_equipment": '',
                 "model_equipment": '',
                 "latitude": '',
-                "longitude": ''
+                "longitude": '',
+                "number_sim_1": '',
+                "iccid_1": '',
+                "operator_1": '',
+                "number_sim_2": '',
+                "iccid_2": '',
+                "operator_2": '',
+                "number_sim_3": '',
+                "iccid_3": '',
+                "operator_3": ''
             } 
         list_equipment.append(dict_equipment_info)   
     

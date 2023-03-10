@@ -14,6 +14,7 @@ from .engine import engine
 class Base(DeclarativeBase):
      pass
 
+
 class Users(Base):
      __tablename__ = "users"
 
@@ -26,6 +27,7 @@ class Users(Base):
      
      logmessages: Mapped[List["LogMessage"]] = relationship(back_populates="users")
 
+
 class LogMessage(Base):
      __tablename__ = "logmessage"
 
@@ -37,12 +39,14 @@ class LogMessage(Base):
 
      users: Mapped[List["Users"]] = relationship(back_populates="logmessages")
 
+
 class Contracts(Base):
      __tablename__ = "contracts"
 
      contracts_id: Mapped[int] = mapped_column(primary_key=True)
      yoda_contract_id: Mapped[str] = mapped_column(String(36))
      name_contract: Mapped[str] = mapped_column(Text())
+
 
 class Equipments(Base):
      __tablename__ = "equipments"
@@ -55,7 +59,16 @@ class Equipments(Base):
      model_equipment: Mapped[str] = mapped_column(String(150))
      latitude: Mapped[str] = mapped_column(String(20))
      longitude: Mapped[str] = mapped_column(String(20))
-
+     number_sim_1: Mapped[Optional[str]] = mapped_column(String(11))
+     iccid_1: Mapped[Optional[str]] = mapped_column(String(20))
+     operator_1: Mapped[Optional[str]] = mapped_column(String(20))
+     number_sim_2: Mapped[Optional[str]] = mapped_column(String(11))
+     iccid_2: Mapped[Optional[str]] = mapped_column(String(20))
+     operator_2: Mapped[Optional[str]] = mapped_column(String(20))
+     number_sim_3: Mapped[Optional[str]] = mapped_column(String(11))
+     iccid_3: Mapped[Optional[str]] = mapped_column(String(20))
+     operator_3: Mapped[Optional[str]] = mapped_column(String(20))
+     
 
 def create_db():
      Base.metadata.create_all(engine)     

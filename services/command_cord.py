@@ -207,7 +207,11 @@ def final_format(result, equipment):
         "latitude": '',
         "longitude": '',
         "dist": '',
-        "descriprion": ''
+        "descriprion": '',
+        "number_sim": '',
+        "iccid": '',
+        "operator": '',
+        "type_mode_modem": ''
     }
 
     dict_final['networkequipments_id'] = result['networkequipments_id']
@@ -223,8 +227,20 @@ def final_format(result, equipment):
             dict_final['model_equipment'] = equipment[count]['model_equipment']
             dict_final['latitude'] = equipment[count]['latitude']
             dict_final['longitude'] = equipment[count]['longitude']
+            dict_final['number_sim'] = equipment[count]['number_sim_1']
+            dict_final['iccid'] = equipment[count]['iccid_1']
+            dict_final['operator'] = equipment[count]['operator_1']
+            dict_final['type_mode_modem'] = type_mode_modem(equipment[count]['type_equipment'])
             break
         else:
             count += 1
     
     return dict_final
+
+def type_mode_modem(type_equipment):
+
+    if type_equipment == 'Шлюз':
+        return 'Клиент'    
+    else:
+        return 'Сервер'
+    

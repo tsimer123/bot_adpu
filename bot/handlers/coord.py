@@ -65,7 +65,11 @@ def format_replay_str(result):
 Модель: {result['model_equipment']}\n\
 Расстояние: {result['dist']}\n\
 Широта: {result['latitude']}\n\
-Долгота: {result['longitude']}"
+Долгота: {result['longitude']}\n\
+№ телефона: {result['number_sim']}\n\
+ICCID: {result['iccid']}\n\
+Оператор: {result['operator']}\n\
+Режим рабыты модема: {result['type_mode_modem']}\n"
 
     return replay_msg
 
