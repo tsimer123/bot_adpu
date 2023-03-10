@@ -17,13 +17,18 @@ def start_bot():
 if __name__ == "__main__":
     input_flags = sys.argv
 
-    if input_flags[1] == '-help':
-        print(
-            '-help - help\n-start_b - start bot\n-crt_db  - create db'
-        )
-    
-    if input_flags[1] == '-start_b':    
-        start_bot()
+    try:
+        if input_flags[1] == '-help':
+            print(
+                '-help - help\n-start_b - start bot\n-crt_db  - create db'
+            )
+        
+        if input_flags[1] == '-start_b':    
+            start_bot()
 
-    if input_flags[1] == '-crt_db':    
-        first_start()
+        if input_flags[1] == '-crt_db':    
+            first_start()
+    except:
+        print(
+                '-help - help\n-start_b - start bot\n-crt_db  - create db'
+            )
