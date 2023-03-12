@@ -15,7 +15,8 @@ def start_bot():
 
 
 if __name__ == "__main__":
-    input_flags = sys.argv
+    # input_flags = sys.argv
+    input_flags = [0, '-start_b']
 
     try:
         if input_flags[1] == '-help':

@@ -14,13 +14,18 @@ def create_log(dict_user, type_message, message):
         type_message = type_message,
         message = message
     )
-    
-    session.add(add_log)
-    session.commit()
 
-    log_id = add_log.logmessage_id
+    try:    
+        session.add(add_log)
+        session.commit()
+        log_id = add_log.logmessage_id
+    except Exception as ex:        
+        raise ex
+    finally:
+        session.close()   
 
     return log_id
+
 
 def write_log(users_id_db, type_message, message):
 
