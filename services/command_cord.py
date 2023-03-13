@@ -35,8 +35,7 @@ def serch_uspd(dict_coords):
                     try:
                         if temp_result['dist'] < result['dist']:
                             result['networkequipments_id'] = temp_result['networkequipments_id']
-                            result['dist'] = temp_result['dist']
-                            count += 1
+                            result['dist'] = temp_result['dist']                            
                     except:
                         print(type(temp_result['dist']))
                         print(temp_result['dist'])

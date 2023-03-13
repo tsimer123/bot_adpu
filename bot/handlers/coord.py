@@ -5,43 +5,55 @@ import re
 from services.command_start import start_user
 from services.log import write_log
 from services.command_cord import serch_uspd
+from services.render_replay_str import print_format_log_cmd
 
 async def command_coord(message: types.Message):
     id_user_tg = message.from_user.id
     full_name = message.from_user.full_name
     tg_name = message.from_user.mention
     message_text = str(message.text)
-    
-    users_id_db = start_user(id_user_tg, tg_name, full_name)
 
-    log_id_db = write_log(users_id_db, 'input', message_text)
+    list_param_log_cmd = [0, 0, id_user_tg, tg_name, full_name]
 
-    list_param_log_cmd = [users_id_db, log_id_db, id_user_tg, tg_name, full_name]
-        
-    print_format_log_cmd(list_param_log_cmd, 'in', message_text)
-    
-    coord_from_msg = split_message(message_text)
-    result = serch_uspd(coord_from_msg)
+    try:    
+        users_id_db = start_user(id_user_tg, tg_name, full_name)
 
-    if result['status']:
-        str_for_replay = format_replay_str(result)
-        log_id_db = write_log(users_id_db, 'output', str_for_replay)
-        print_format_log_cmd(list_param_log_cmd, 'out', 'ok')
-        await message.reply(str_for_replay)
-    else:
-        if result['descriprion'] == "Error DB, no equipment in table":
-            print_format_log_cmd(list_param_log_cmd, 'out', 'code error: 1001')
-            await message.reply('Ошибка Базы Данных (code error: 1001).\nОбратитесь к Администратору @etsimerman')
+        log_id_db = write_log(users_id_db, 'input', message_text)
+
+        list_param_log_cmd[0] = users_id_db
+        list_param_log_cmd[1] = log_id_db        
+            
+        print_format_log_cmd(list_param_log_cmd, 'in', message_text)
         
-        if result['descriprion'] == "Error DB, not valid uquipment":
-            print_format_log_cmd(list_param_log_cmd, 'out', 'code error: 1002')
-            await message.reply('Ошибка Базы Данных (code error: 1002).\nОбратитесь к Администратору @etsimerman')
-        
-        if result['descriprion'] == "No valid source coordinates":
-            print_format_log_cmd(list_param_log_cmd, 'out', 'No valid source coordinates')
-            await message.reply('Координаты введены не верно.\nВерный формат:\n55.706792, 37.625540')        
-        
-        log_id_db = write_log(users_id_db, 'output', result['descriprion'])
+        coord_from_msg = split_message(message_text)
+        result = serch_uspd(coord_from_msg)
+
+        if result['status']:
+            str_for_replay = format_replay_str(result)
+            log_id_db = write_log(users_id_db, 'output', str_for_replay)
+            print_format_log_cmd(list_param_log_cmd, 'out', 'ok')
+            await message.reply(str_for_replay)
+        else:
+            if result['descriprion'] == "Error DB, no equipment in table":
+                print_format_log_cmd(list_param_log_cmd, 'out', 'code error: 1001')
+                log_id_db = write_log(users_id_db, 'output', 'code error: 1001')
+                await message.reply('Ошибка Базы Данных (code error: 1001).\nОбратитесь к Администратору @etsimerman')
+            
+            if result['descriprion'] == "Error DB, not valid uquipment":
+                print_format_log_cmd(list_param_log_cmd, 'out', 'code error: 1002')
+                log_id_db = write_log(users_id_db, 'output', 'code error: 1002')
+                await message.reply('Ошибка Базы Данных (code error: 1002).\nОбратитесь к Администратору @etsimerman')
+            
+            if result['descriprion'] == "No valid source coordinates":
+                print_format_log_cmd(list_param_log_cmd, 'out', 'No valid source coordinates')
+                log_id_db = write_log(users_id_db, 'output', 'No valid source coordinates')
+                await message.reply('Координаты введены не верно.\nВерный формат:\n55.706792, 37.625540')        
+            
+            log_id_db = write_log(users_id_db, 'output', result['descriprion'])
+    except Exception as ex:
+        print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])        
+        await message.reply('Ошибка Базы Данных (code error: 1003).\nОбратитесь к Администратору @etsimerman')
+
 
 
 def split_message(message_text):
@@ -72,16 +84,3 @@ ICCID: {result['iccid']}\n\
 Режим рабыты модема: {result['type_mode_modem']}\n"
 
     return replay_msg
-
-
-def print_format_log_cmd(list_param, type, message):
-    
-    print(str(datetime.now()) + ", " +
-            str(list_param[0]) + ", " +
-            type + " " +
-            str(list_param[1]) + ", " +
-            str(list_param[2]) + ", " +
-            str(list_param[3]) + ", " +
-            str(list_param[4]) + ", " +
-            str(message))
-    
