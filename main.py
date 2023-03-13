@@ -14,9 +14,10 @@ def start_bot():
     run_bot()
 
 
-if __name__ == "__main__":
-    # input_flags = sys.argv
-    input_flags = [0, '-start_b']
+def main():
+
+    input_flags = sys.argv
+    # input_flags = [0, '-start_b']
 
     try:
         if input_flags[1] == '-help':
@@ -33,3 +34,7 @@ if __name__ == "__main__":
         print(
                 '-help - help\n-start_b - start bot\n-crt_db  - create db'
             )
+
+
+if __name__ == "__main__":
+    main()
