@@ -6,6 +6,8 @@ from services.command_start import start_user
 from services.log import write_log
 from services.command_cord import serch_uspd
 from services.render_replay_str import print_format_log_cmd
+from bot.handlers.str_description_err import error_1001, error_1002,\
+    error_not_valid_coord, error_1003, error_500m
 
 async def command_coord(message: types.Message):
     id_user_tg = message.from_user.id
@@ -37,22 +39,27 @@ async def command_coord(message: types.Message):
             if result['descriprion'] == "Error DB, no equipment in table":
                 print_format_log_cmd(list_param_log_cmd, 'out', 'code error: 1001')
                 log_id_db = write_log(users_id_db, 'output', 'code error: 1001')
-                await message.reply('Ошибка Базы Данных (code error: 1001).\nОбратитесь к Администратору @etsimerman')
+                await message.reply(error_1001)
             
             if result['descriprion'] == "Error DB, not valid uquipment":
                 print_format_log_cmd(list_param_log_cmd, 'out', 'code error: 1002')
                 log_id_db = write_log(users_id_db, 'output', 'code error: 1002')
-                await message.reply('Ошибка Базы Данных (code error: 1002).\nОбратитесь к Администратору @etsimerman')
+                await message.reply(error_1002)
             
             if result['descriprion'] == "No valid source coordinates":
                 print_format_log_cmd(list_param_log_cmd, 'out', 'No valid source coordinates')
                 log_id_db = write_log(users_id_db, 'output', 'No valid source coordinates')
-                await message.reply('Координаты введены не верно.\nВерный формат:\n55.706792, 37.625540')        
+                await message.reply(error_not_valid_coord)
+
+            if result['descriprion'] == "Dist more than 500 m, no ZB network connection":
+                print_format_log_cmd(list_param_log_cmd, 'out', 'Dist more than 500 m')
+                log_id_db = write_log(users_id_db, 'output', 'Dist more than 500 m')
+                await message.reply(error_500m)       
             
             log_id_db = write_log(users_id_db, 'output', result['descriprion'])
     except Exception as ex:
         print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])        
-        await message.reply('Ошибка Базы Данных (code error: 1003).\nОбратитесь к Администратору @etsimerman')
+        await message.reply(error_1003)
 
 
 

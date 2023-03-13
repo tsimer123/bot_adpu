@@ -39,7 +39,11 @@ def serch_uspd(dict_coords):
                         print(temp_result['dist'])
 
                         print(type(result['dist']))
-                        print(result['dist'])                
+                        print(result['dist'])
+            if result['dist'] > 500.00:
+                result['status'] = False
+                result['descriprion'] = "Dist more than 500 m, no ZB network connection"
+
         else:
             result['status'] = False
             result['descriprion'] = "Error DB, no equipment in table"
@@ -233,6 +237,7 @@ def final_format(result, equipment):
             count += 1
     
     return dict_final
+
 
 def type_mode_modem(type_equipment):
 
