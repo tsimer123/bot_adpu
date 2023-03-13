@@ -3,9 +3,7 @@ import math
 
 from services.equipment import get_equipment_info
 
-def serch_uspd(dict_coords):
-
-    count = 0
+def serch_uspd(dict_coords):    
 
     result = {
         "networkequipments_id": '',
