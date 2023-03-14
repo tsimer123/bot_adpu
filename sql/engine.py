@@ -1,7 +1,15 @@
+import os
+from dotenv import load_dotenv, find_dotenv
+
 from sqlalchemy import create_engine
 from sqlalchemy import URL
 
-from conf import username_db, password_db, host_db, database
+from conf import host_db, database
+
+load_dotenv()
+
+username_db = os.getenv('username_db')
+password_db = os.getenv('password_db')
 
 url_object = URL.create(
     "postgresql+psycopg2",

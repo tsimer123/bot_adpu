@@ -68,7 +68,54 @@ class Equipments(Base):
      number_sim_3: Mapped[Optional[str]] = mapped_column(String(11))
      iccid_3: Mapped[Optional[str]] = mapped_column(String(20))
      operator_3: Mapped[Optional[str]] = mapped_column(String(20))
-     
+
+
+class Sims(Base):
+     __tablename__ = "sims"
+
+     sims_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+     number_tel: Mapped[Optional[str]] = mapped_column(String(11))
+     iccid: Mapped[Optional[str]] = mapped_column(String(20))
+     apn: Mapped[Optional[str]] = mapped_column(Text())
+     ip: Mapped[Optional[str]] = mapped_column(String(15))
+     state: Mapped[Optional[str]] = mapped_column(String(100))
+     activity: Mapped[Optional[str]] = mapped_column(DateTime())
+     traffic: Mapped[int] = mapped_column(BigInteger)
+     operator: Mapped[Optional[str]] = mapped_column(String(20))
+     created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
+     update_on: Mapped[Optional[datetime]] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
+
+class ImportSimsLog(Base):
+     __tablename__ = "importsimslog"
+
+     importsimslog_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+     start_import: Mapped[str] = mapped_column(DateTime())
+     name_file: Mapped[str] = mapped_column(Text())
+     state: Mapped[str] = mapped_column(String(10))
+     count_import_sim: Mapped[int]
+     error_import: Mapped[str] = mapped_column(Text())
+
+
+class UpdateSimLog(Base):
+     __tablename__ = "updatesimlog"
+
+     updatesimlog_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+     sims_id = mapped_column(ForeignKey("sims.sims_id"))
+     importsimslog_id = mapped_column(ForeignKey("importsimslog.importsimslog_id"))
+     number_tel: Mapped[Optional[str]] = mapped_column(String(11))
+     iccid: Mapped[Optional[str]] = mapped_column(String(20))
+     apn: Mapped[Optional[str]] = mapped_column(Text())
+     ip: Mapped[Optional[str]] = mapped_column(String(15))
+     state: Mapped[Optional[str]] = mapped_column(String(100))
+     activity: Mapped[Optional[str]] = mapped_column(DateTime())
+     traffic: Mapped[int] = mapped_column(BigInteger)
+     operator: Mapped[Optional[str]] = mapped_column(String(20))
+     created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
+
+
+     sims: Mapped[List["Sims"]] = relationship(back_populates="updatesimlog")
+     importsimslog: Mapped[List["ImportSimsLog"]] = relationship(back_populates="updatesimlog")
+
 
 def create_db():
      Base.metadata.create_all(engine)     
