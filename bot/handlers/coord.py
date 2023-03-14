@@ -56,7 +56,7 @@ async def command_coord(message: types.Message):
                 log_id_db = write_log(users_id_db, 'output', 'Dist more than 500 m')
                 await message.reply(error_500m)       
             
-            log_id_db = write_log(users_id_db, 'output', result['descriprion'])
+            # log_id_db = write_log(users_id_db, 'output', result['descriprion'])
     except Exception as ex:
         print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])        
         await message.reply(error_1003)
