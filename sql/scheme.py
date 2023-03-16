@@ -83,6 +83,8 @@ class Sims(Base):
      traffic: Mapped[Optional[str]] = mapped_column(String(15))
      operator: Mapped[str] = mapped_column(String(20))
      imei: Mapped[Optional[str]] = mapped_column(String(20))
+     state_in_lk: Mapped[str] = mapped_column(String(15))
+     last_upload: Mapped[datetime] = mapped_column(DateTime())
      created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
      update_on: Mapped[Optional[datetime]] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
 
