@@ -77,11 +77,12 @@ class Sims(Base):
      number_tel: Mapped[str] = mapped_column(String(11))
      iccid: Mapped[str] = mapped_column(String(20))
      apn: Mapped[Optional[str]] = mapped_column(Text())
-     ip: Mapped[Optional[str]] = mapped_column(String(15))
+     ip: Mapped[Optional[str]] = mapped_column(String(15))     
      state: Mapped[str] = mapped_column(String(100))
      activity: Mapped[Optional[str]] = mapped_column(DateTime())
      traffic: Mapped[Optional[str]] = mapped_column(String(15))
      operator: Mapped[str] = mapped_column(String(20))
+     imei: Mapped[Optional[str]] = mapped_column(String(20))
      created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
      update_on: Mapped[Optional[datetime]] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
 
