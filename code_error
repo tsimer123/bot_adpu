@@ -5,3 +5,11 @@
 # 1001 - empty DB
 # 1002 - not valid coordinate equipment in DB
 # 1003 - BD not connect
+# 1004 - not search sim in DB
+
+# error_not_valid_coord
+
+# error_500m
+
+# error_valid_number_tel
+# error_valid_iccid
