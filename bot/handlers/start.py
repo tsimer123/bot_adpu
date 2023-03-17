@@ -25,7 +25,8 @@ async def command_start(message: types.Message):
         
             print_format_log_cmd(list_param_log_cmd, 'in', message_text)            
             
-            await bot.send_message(message.from_user.id, 'Добро пожаловать' + " " + str(full_name))
+            await bot.send_message(message.from_user.id, 'Добро пожаловать, ' + " " + str(full_name)\
+                                   + ", предлагаем ознакомиться с возможностями Бота, отправив ему команду /help")
             log_id_db = write_log(users_id_db, 'input', 'ok')
             await message.delete()
         except Exception as ex:
@@ -34,3 +35,4 @@ async def command_start(message: types.Message):
             
     except:
         await message.reply('Общение с ботом через ЛС, напишите ему:\nhttps://t.me/SEK_ADPU_bot')
+        
