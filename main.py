@@ -1,7 +1,6 @@
 import sys
 from sql.scheme import create_db
 from bot.start_bot import run_bot
-from services.sims import get_count_sims
 
 
 def first_start():

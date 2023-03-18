@@ -7,7 +7,7 @@ def run_bot():
 
 
 	async def on_startup(_):
-		print('Бот вышел в онлайн', file=sys.stdout)
+		print('Бот вышел в онлайн', file=sys.stderr)
 
 	# from handlers import client, other
 

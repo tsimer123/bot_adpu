@@ -1,3 +1,4 @@
+import sys
 from aiogram import types
 from datetime import datetime
 
@@ -30,7 +31,7 @@ async def command_start(message: types.Message):
             log_id_db = write_log(users_id_db, 'input', 'ok')
             await message.delete()
         except Exception as ex:
-            print(str(datetime.now()) + ' ' + str(ex.args[0]))
+            print(str(datetime.now()) + ' ' + str(ex.args[0]), file=sys.stderr)
             await bot.send_message(message.from_user.id, 'Ошибка Базы Данных (code error: 1003).\nОбратитесь к Администратору @etsimerman')
             
     except:
