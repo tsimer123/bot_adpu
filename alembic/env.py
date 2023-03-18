@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+import os
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -26,6 +27,10 @@ target_metadata = scheme.Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+section = config.config_ini_section
+config.set_section_option(section, "username_db", os.environ.get("username_db"))
+config.set_section_option(section, "password_db", os.environ.get("password_db"))
 
 
 def run_migrations_offline() -> None:
