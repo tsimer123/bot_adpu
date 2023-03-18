@@ -1,5 +1,6 @@
+import sys
 from aiogram import types
-from datetime import datetime
+from pathlib import Path
 
 from services.command_start import start_user
 from services.log import write_log
@@ -26,7 +27,11 @@ async def command_help(message: types.Message):
             
         print_format_log_cmd(list_param_log_cmd, 'in', message_text)
 
-        with open("help.html", 'r', encoding='utf8') as f_help:
+        app_dir = Path(sys.argv[0]).parent
+        name_f = "help.html"
+        path_to_file_help = Path(app_dir, name_f)
+
+        with open(path_to_file_help, 'r', encoding='utf8') as f_help:
             list_help = f_help.readlines()
         for line_f in list_help:
             str_help += line_f

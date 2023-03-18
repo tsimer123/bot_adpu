@@ -1,9 +1,7 @@
 import sys
 from sql.scheme import create_db
 from bot.start_bot import run_bot
-from services.user import get_user_info, create_user, get_user_id
-from services.log import create_log
-from services.equipment import get_equipment_info
+from services.sims import get_count_sims
 
 
 def first_start():
@@ -11,13 +9,14 @@ def first_start():
 
 
 def start_bot():
+    create_db()
     run_bot()
 
 
 def main():
 
-    # input_flags = sys.argv
-    input_flags = [0, '-start_b']
+    input_flags = sys.argv
+    # input_flags = [0, '-start_b']
 
     try:
         if input_flags[1] == '-help':
