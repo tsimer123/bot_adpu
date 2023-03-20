@@ -28,7 +28,8 @@ def main():
 
         if input_flags[1] == '-crt_db':    
             first_start()
-    except:
+    except Exception as ex:
+        print(str(ex.args))
         print(
                 '-help - help\n-start_b - start bot\n-crt_db  - create db'
             )

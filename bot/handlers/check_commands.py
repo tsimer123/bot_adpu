@@ -11,7 +11,7 @@ def check_len_command(in_list_command):
     result = False
     list_command = split_message(in_list_command)
 
-    if len(list_command):
+    if len(list_command) > 1:
         result = True
 
     return result
