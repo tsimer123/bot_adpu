@@ -12,6 +12,6 @@
 
 * в корень проекта добавить файл `.env` с заполненными переменными: `username_db`, `username_db`, `host_db`,  `database`, `TOKEN` или передать данные переменные в окружение.
 * применить миграции если требуется: 
-* 	сгенерировать миграцию `alembic revision –message=”Initial” --autogenerate`
-* 	применить миграцию `alembic upgrade head`
++ сгенерировать миграцию `alembic revision –message=”Initial” --autogenerate`
++ применить миграцию `alembic upgrade head`
 * запустить скрипт с параметром `-start_b`
