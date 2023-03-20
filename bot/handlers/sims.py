@@ -5,8 +5,9 @@ from services.command_start import start_user
 from services.log import write_log
 from services.render_replay_str import print_format_log_cmd
 from bot.handlers.str_description_err import error_1001, error_1003, error_not_sim_in_db, error_valid_number_tel,\
-error_valid_iccid
+error_valid_iccid, error_valid_comand_sims
 from services.command_sims_num_iccid import input_data
+from bot.handlers.check_commands import check_len_command
 
 async def command_sims_tel_and_iccid(message: types.Message) -> None:
     id_user_tg = message.from_user.id
@@ -24,36 +25,41 @@ async def command_sims_tel_and_iccid(message: types.Message) -> None:
         list_param_log_cmd[0] = users_id_db
         list_param_log_cmd[1] = log_id_db
 
-        print_format_log_cmd(list_param_log_cmd, 'in', message_text)        
+        print_format_log_cmd(list_param_log_cmd, 'in', message_text)
 
-        result = input_data(split_message(message_text))
+        if check_len_command(message_text):
 
-        if result['sims_id'] != 0:
-            str_for_replay = format_replay_str(result)
-            log_id_db = write_log(users_id_db, 'output', str_for_replay)
-            print_format_log_cmd(list_param_log_cmd, 'out', 'ok')
-            await message.reply(str_for_replay)
+            result = input_data(split_message(message_text))
+
+            if result['sims_id'] != 0:
+                str_for_replay = format_replay_str(result)
+                log_id_db = write_log(users_id_db, 'output', str_for_replay)
+                print_format_log_cmd(list_param_log_cmd, 'out', 'ok')
+                await message.reply(str_for_replay)
+            else:
+                if result['description'] == "Error DB, no sims in table":
+                    print_format_log_cmd(list_param_log_cmd, 'out', 'code error: 1001')
+                    log_id_db = write_log(users_id_db, 'output', 'code error: 1001')
+                    await message.reply(error_1001)
+                
+                if result['description'] == "Not sim in DB":
+                    print_format_log_cmd(list_param_log_cmd, 'out', 'Not sim in DB')
+                    log_id_db = write_log(users_id_db, 'output', 'Not sim in DB')
+                    await message.reply(error_not_sim_in_db)
+                
+                if result['description'] == "Not valid number tel":
+                    print_format_log_cmd(list_param_log_cmd, 'out', 'Not valid number tel')
+                    log_id_db = write_log(users_id_db, 'output', 'Not valid number tel')
+                    await message.reply(error_valid_number_tel)
+
+                if result['description'] == "Not valid iccid":
+                    print_format_log_cmd(list_param_log_cmd, 'out', 'Not valid iccid')
+                    log_id_db = write_log(users_id_db, 'output', 'Not valid iccid')
+                    await message.reply(error_valid_iccid)
         else:
-            if result['description'] == "Error DB, no sims in table":
-                print_format_log_cmd(list_param_log_cmd, 'out', 'code error: 1001')
-                log_id_db = write_log(users_id_db, 'output', 'code error: 1001')
-                await message.reply(error_1001)
-            
-            if result['description'] == "Not sim in DB":
-                print_format_log_cmd(list_param_log_cmd, 'out', 'Not sim in DB')
-                log_id_db = write_log(users_id_db, 'output', 'Not sim in DB')
-                await message.reply(error_not_sim_in_db)
-            
-            if result['description'] == "Not valid number tel":
-                print_format_log_cmd(list_param_log_cmd, 'out', 'Not valid number tel')
-                log_id_db = write_log(users_id_db, 'output', 'Not valid number tel')
-                await message.reply(error_valid_number_tel)
-
-            if result['description'] == "Not valid iccid":
-                print_format_log_cmd(list_param_log_cmd, 'out', 'Not valid iccid')
-                log_id_db = write_log(users_id_db, 'output', 'Not valid iccid')
-                await message.reply(error_valid_iccid)
-
+            print_format_log_cmd(list_param_log_cmd, 'out', 'Not valid command sims')
+            log_id_db = write_log(users_id_db, 'output', 'Not valid command sims')
+            await message.reply(error_valid_comand_sims)
     except Exception as ex:
         print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])        
         await message.reply(error_1003)
