@@ -8,3 +8,5 @@ variables_temp.py
 /yoda/urls.py
 /yoda/
 .env
+/backup/
+.env copy

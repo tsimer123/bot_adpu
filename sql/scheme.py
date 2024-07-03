@@ -79,10 +79,11 @@ class Sims(Base):
      apn: Mapped[Optional[str]] = mapped_column(Text())
      ip: Mapped[Optional[str]] = mapped_column(String(15))     
      state: Mapped[str] = mapped_column(String(100))
-     activity: Mapped[Optional[str]] = mapped_column(DateTime())
+     activity: Mapped[Optional[datetime]] = mapped_column(DateTime())
      traffic: Mapped[Optional[str]] = mapped_column(String(15))
      operator: Mapped[str] = mapped_column(String(20))
      imei: Mapped[Optional[str]] = mapped_column(String(20))
+     hash_data: Mapped[str] = mapped_column(String(100))
      state_in_lk: Mapped[str] = mapped_column(String(15))
      last_upload: Mapped[datetime] = mapped_column(DateTime())
      created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
@@ -90,15 +91,19 @@ class Sims(Base):
 
      updatesimlog: Mapped[List["UpdateSimLog"]] = relationship(back_populates="sims")
 
+
 class ImportSimsLog(Base):
      __tablename__ = "importsimslog"
 
      importsimslog_id: Mapped[int] = mapped_column(primary_key=True)
      start_import: Mapped[str] = mapped_column(DateTime())
      name_file: Mapped[str] = mapped_column(Text())
-     state: Mapped[str] = mapped_column(String(10))
-     count_import_sim: Mapped[int]
+     state: Mapped[Optional[str]] = mapped_column(String(20))
+     count_import_sim: Mapped[Optional[int]]
+     count_sim_file: Mapped[Optional[int]]
+     description: Mapped[Optional[str]] = mapped_column(Text())
      error_import: Mapped[Optional[str]] = mapped_column(Text())
+     created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
 
      updatesimlog: Mapped[List["UpdateSimLog"]] = relationship(back_populates="importsimslog")
 
@@ -117,12 +122,39 @@ class UpdateSimLog(Base):
      activity: Mapped[Optional[str]] = mapped_column(DateTime())
      traffic: Mapped[Optional[str]] = mapped_column(String(15))
      operator: Mapped[Optional[str]] = mapped_column(String(20))
+     state_in_lk: Mapped[Optional[str]] = mapped_column(String(15))
      created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
 
 
      sims: Mapped[List["Sims"]] = relationship(back_populates="updatesimlog")
      importsimslog: Mapped[List["ImportSimsLog"]] = relationship(back_populates="updatesimlog")
 
+
+class Dirs(Base):
+     __tablename__ = "dirs"
+
+     dirs_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+     name_dir: Mapped[str]
+     state: Mapped[Optional[str]] = mapped_column(String(50))
+     created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
+     update_on: Mapped[Optional[datetime]] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
+
+     contentsdirs: Mapped[List["ContentsDirs"]] = relationship(back_populates="dirs")
+
+
+class ContentsDirs(Base):
+     __tablename__ = "contentsdirs"
+
+     contentsdirs_id: Mapped[int] = mapped_column(primary_key=True)
+     dirs_id = mapped_column(ForeignKey("dirs.dirs_id"))
+     name_obj: Mapped[str]
+     additions: Mapped[Optional[str]]
+     state: Mapped[Optional[str]] = mapped_column(String(50))
+     created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now)
+     update_on: Mapped[Optional[datetime]] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
+
+     dirs: Mapped[List["Dirs"]] = relationship(back_populates="contentsdirs")
+    
 
 def create_db():
      Base.metadata.create_all(engine)     
