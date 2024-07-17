@@ -24,11 +24,11 @@ async def command_msisdn(message: types.Message) -> None:
             df3 = pd.concat([df3, df], ignore_index=True)
         else :
             df3.loc[len(df3.index)] = ['нет данных', 'нет данных', msisdn1, 'нет данных', 'нет данных', 'нет данных', 'нет данных']
-            await message.reply(
-                f"Информация отсутствует по\n"
-                f"<b>msisdn:</b> {msisdn1}\n",
-                parse_mode = 'HTML'
-            ) 
+            # await message.reply(
+            #     f"Информация отсутствует по\n"
+            #     f"<b>msisdn:</b> {msisdn1}\n",
+            #     parse_mode = 'HTML'
+            # ) 
     num_rows = df3.shape[0] 
     if num_rows > 0 and num_rows < 2 :
         operator = df3['operator'].squeeze()
