@@ -10,3 +10,6 @@ variables_temp.py
 .env
 /backup/
 .env copy
+*.xlsx
+telebot*
+/env2/

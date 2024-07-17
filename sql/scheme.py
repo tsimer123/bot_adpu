@@ -155,6 +155,19 @@ class ContentsDirs(Base):
 
      dirs: Mapped[List["Dirs"]] = relationship(back_populates="contentsdirs")
     
+class SimCards(Base):
+     __tablename__ = "simcards"
+
+     simcards_id: Mapped[int] = mapped_column(primary_key=True)
+     operator: Mapped[str] = mapped_column(Text())
+     iccid: Mapped[str] = mapped_column(Text())
+     msisdn: Mapped[str] = mapped_column(Text())
+     ip: Mapped[str] = mapped_column(Text())
+     apn: Mapped[Optional[str]] = mapped_column(Text())
+     apnusername: Mapped[Optional[str]] = mapped_column(Text())
+     apnpassword: Mapped[Optional[str]] = mapped_column(Text())
+     issued: Mapped[Optional[str]] = mapped_column(Text())
+     date_receipt:Mapped[datetime] = mapped_column(DateTime())
 
 def create_db():
      Base.metadata.create_all(engine)     
