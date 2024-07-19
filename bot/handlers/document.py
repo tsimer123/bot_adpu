@@ -66,6 +66,19 @@ async def download_document(message: types.Message) -> None:
         df2.to_excel(output2, index=False)
         document = output2.getvalue()
         await bot.send_document(message.chat.id, ('response.xlsx', document))
+    elif df2.columns[0] == 'ip':
+        conn = db.connect()
+        df2.to_sql('simki', con=conn, if_exists='replace', index=False) 
+        sql_query = pd.read_sql("SELECT simcards.ip, simcards.msisdn, simcards.iccid, simcards.operator, simcards.apn, simcards.apnusername, simcards.password, simcards.issued, simcards.date_receipt FROM simcards, simki where simcards.ip=simki.ip;", con=conn)
+        df = pd.DataFrame(sql_query, columns = ['ip', 'msisdn', 'iccid', 'operator', 'apn', 'apnusername', 'password'])
+        conn.close()
+        #df2["msisdn"] = df2['msisdn'].astype('int')
+        #df["msisdn"] = df['msisdn'].astype('int')
+        df2 = df2.merge(df, how='left', on='ip')
+        df2 = df2.fillna('Нет данных')
+        df2.to_excel(output2, index=False)
+        document = output2.getvalue()
+        await bot.send_document(message.chat.id, ('response.xlsx', document))
     else:
         await message.reply(
                     f"<b>Обрабатываются только файлы с названиями первых столбцов iccid, msisdn, tel или imsi</b>",
