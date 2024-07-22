@@ -1,10 +1,12 @@
 import io
-import pandas as pd 
+import pandas as pd
 import re
+import xlsxwriter
 from aiogram import types
 from bot.create_bot import dp, bot
 from sql.engine import engine
 from sqlalchemy.types import Text
+
 
 db = engine
 async def download_document(message: types.Message) -> None:
@@ -19,7 +21,12 @@ async def download_document(message: types.Message) -> None:
         sql_query = pd.read_sql("SELECT msisdn, COALESCE(iccid, 'Нет данных') as iccid, COALESCE(operator, 'Нет данных') as operator, COALESCE(ip, 'Нет данных') as ip, COALESCE(apn, 'Нет данных') as apn, COALESCE(apnusername, 'Нет данных') as apnusername, COALESCE(password, 'Нет данных') as password FROM simki LEFT JOIN simcards USING (msisdn) order by simki.index;", con=conn)
         df = pd.DataFrame(sql_query, columns = ['msisdn', 'iccid', 'operator', 'ip', 'apn', 'apnusername', 'password'])
         conn.close()
-        df.to_excel(output2, index=False)
+        writer = pd.ExcelWriter(output2, engine='xlsxwriter')
+        df.to_excel(writer, index=False, sheet_name='Лист1')
+        workbook = writer.book
+        worksheet = writer.sheets['Лист1']
+        worksheet.autofit()
+        workbook.close()
         document = output2.getvalue()
         await bot.send_document(message.chat.id, ('response.xlsx', document))
     elif df2.columns[0] == 'imsi':
@@ -29,7 +36,12 @@ async def download_document(message: types.Message) -> None:
         sql_query = pd.read_sql("SELECT iccid, COALESCE(msisdn, 'Нет данных') as msisdn, COALESCE(operator, 'Нет данных') as operator, COALESCE(ip, 'Нет данных') as ip, COALESCE(apn, 'Нет данных') as apn, COALESCE(apnusername, 'Нет данных') as apnusername, COALESCE(password, 'Нет данных') as password FROM simki LEFT JOIN simcards USING (iccid) order by simki.index;", con=conn)
         df = pd.DataFrame(sql_query, columns = ['iccid', 'msisdn', 'operator', 'ip', 'apn', 'apnusername', 'password'])
         conn.close()
-        df.to_excel(output2, index=False)
+        writer = pd.ExcelWriter(output2, engine='xlsxwriter')
+        df.to_excel(writer, index=False, sheet_name='Лист1')
+        workbook = writer.book
+        worksheet = writer.sheets['Лист1']
+        worksheet.autofit()
+        workbook.close()
         document = output2.getvalue()
         await bot.send_document(message.chat.id, ('response.xlsx', document))
     elif df2.columns[0] == 'iccid':
@@ -38,7 +50,12 @@ async def download_document(message: types.Message) -> None:
         sql_query = pd.read_sql("SELECT iccid, COALESCE(number_tel, 'Нет данных') as tel, COALESCE(apn, 'Нет данных') as apn, COALESCE(ip, 'Нет данных') as ip, COALESCE(state, 'Нет данных') as state, activity, COALESCE(traffic, 'Нет данных') as traffic, COALESCE(operator, 'Нет данных'), COALESCE(imei, 'Нет данных') as imei FROM simki LEFT JOIN sims USING (iccid) where sims.state_in_lk='present' order by simki.index;", con=conn)
         df = pd.DataFrame(sql_query, columns = ['iccid', 'number_tel', 'apn', 'ip', 'state', 'activity', 'traffic', 'operator', 'imei'])
         conn.close()
-        df.to_excel(output2, index=False)
+        writer = pd.ExcelWriter(output2, engine='xlsxwriter')
+        df.to_excel(writer, index=False, sheet_name='Лист1')
+        workbook = writer.book
+        worksheet = writer.sheets['Лист1']
+        worksheet.autofit()
+        workbook.close()
         document = output2.getvalue()
         await bot.send_document(message.chat.id, ('response.xlsx', document))
     elif df2.columns[0] == 'tel':
@@ -48,7 +65,12 @@ async def download_document(message: types.Message) -> None:
         sql_query = pd.read_sql("SELECT number_tel as tel, COALESCE(iccid, 'Нет данных') as iccid, COALESCE(apn, 'Нет данных') as apn, COALESCE(ip, 'Нет данных') as ip, COALESCE(state, 'Нет данных') as state, activity, COALESCE(traffic, 'Нет данных') as traffic, COALESCE(operator, 'Нет данных'), COALESCE(imei, 'Нет данных') as imei FROM simki LEFT JOIN sims USING (number_tel) where sims.state_in_lk='present' order by simki.index;", con=conn)
         df = pd.DataFrame(sql_query, columns = ['tel', 'iccid', 'apn', 'ip', 'state', 'activity', 'traffic', 'operator', 'imei'])
         conn.close()
-        df.to_excel(output2, index=False)
+        writer = pd.ExcelWriter(output2, engine='xlsxwriter')
+        df.to_excel(writer, index=False, sheet_name='Лист1')
+        workbook = writer.book
+        worksheet = writer.sheets['Лист1']
+        worksheet.autofit()
+        workbook.close()
         document = output2.getvalue()
         await bot.send_document(message.chat.id, ('response.xlsx', document))
     elif df2.columns[0] == 'ip':
@@ -58,12 +80,10 @@ async def download_document(message: types.Message) -> None:
         df = pd.DataFrame(sql_query, columns = ['ip', 'msisdn', 'iccid', 'operator', 'apn', 'apnusername', 'password'])
         conn.close()
         writer = pd.ExcelWriter(output2, engine='xlsxwriter')
-        df.to_excel(writer, index=False, sheet_name='Sheet1')
+        df.to_excel(writer, index=False, sheet_name='Лист1')
         workbook = writer.book
-        worksheet = writer.sheets['Sheet1']
-        for i, col in enumerate(df.columns):
-            width = max(df[col].apply(lambda x: len(str(x))).max(), len(col))
-            worksheet.set_column(i, i, width)
+        worksheet = writer.sheets['Лист1']
+        worksheet.autofit()
         workbook.close()
         document = output2.getvalue()
         await bot.send_document(message.chat.id, ('response.xlsx', document))
