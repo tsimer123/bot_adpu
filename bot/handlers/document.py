@@ -10,7 +10,6 @@ from sqlalchemy.types import Text
 db = engine
 async def download_document(message: types.Message) -> None:
     output = io.BytesIO()
-    output2 = io.BytesIO()
     await message.document.download(destination = output)
     output.getvalue()
     df2 = pd.read_excel(output, dtype=object)
