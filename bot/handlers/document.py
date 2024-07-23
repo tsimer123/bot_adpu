@@ -39,7 +39,7 @@ async def download_document(message: types.Message) -> None:
         df2 = df2.rename(columns={'tel': 'number_tel'})
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"number_tel": Text()}) 
-        sql_query = pd.read_sql("SELECT number_tel as tel, COALESCE(iccid, 'Нет данных') as iccid, COALESCE(apn, 'Нет данных') as apn, COALESCE(ip, 'Нет данных') as ip, COALESCE(state, 'Нет данных') as state, activity, COALESCE(traffic, 'Нет данных') as traffic, COALESCE(operator, 'Нет данных'), COALESCE(imei, 'Нет данных') as imei FROM simki LEFT JOIN sims USING (number_tel) where sims.state_in_lk='present' order by simki.index;", con=conn)
+        sql_query = pd.read_sql("SELECT number_tel as tel, COALESCE(iccid, 'Нет данных') as iccid, COALESCE(apn, 'Нет данных') as apn, COALESCE(ip, 'Нет данных') as ip, COALESCE(state, 'Нет данных') as state, activity, COALESCE(traffic, 'Нет данных') as traffic, COALESCE(operator, 'Нет данных') as operator, COALESCE(imei, 'Нет данных') as imei FROM simki LEFT JOIN sims USING (number_tel) where sims.state_in_lk='present' order by simki.index;", con=conn)
         df = pd.DataFrame(sql_query, columns = ['tel', 'iccid', 'apn', 'ip', 'state', 'activity', 'traffic', 'operator', 'imei'])
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
