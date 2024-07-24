@@ -1,33 +1,18 @@
-import io
 import pandas as pd
 import re
 import xlsxwriter
+import openpyxl as op
+from io import BytesIO
 from aiogram import types
 from bot.create_bot import dp, bot
 from sql.engine import engine
 from sqlalchemy.types import Text
-import openpyxl as op
 
 db = engine
 async def download_document(message: types.Message) -> None:
-    output = io.BytesIO()
+    output = BytesIO()
     await message.document.download(destination = output)
-    output.getvalue()
-    excel_doc = op.open(output, data_only=True)
-    sheetnames = excel_doc.sheetnames
-    sheet = excel_doc[sheetnames[0]]
-    rowList = []
-    i=1
-    while sheet.cell(row = i, column = 1).value is not None:
-        a = sheet.cell(row = i, column = 1).value
-        if (type(a)) == float:
-            rowList.append(i)
-        i += 1
-    for i in reversed(rowList):
-        sheet.delete_rows(i)
-    excel_doc.save(output)
-    output.getvalue()
-    df2 = pd.read_excel(output, dtype=object)
+    df2 = pd.read_excel(BytesIO(filtration(output)), dtype=object)
     if df2.columns[0] == 'msisdn':
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"msisdn": Text()}) 
@@ -71,7 +56,7 @@ async def download_document(message: types.Message) -> None:
                     parse_mode = 'HTML'
         )
 def fit (df):
-    output3 = io.BytesIO()
+    output3 = BytesIO()
     writer = pd.ExcelWriter(output3, engine='xlsxwriter')
     df.to_excel(writer, index=False, sheet_name='Лист1')
     workbook = writer.book
@@ -79,4 +64,21 @@ def fit (df):
     worksheet.autofit()
     workbook.close()
     document = output3.getvalue()
+    return document
+def filtration (output):
+    output.getvalue()
+    excel_doc = op.open(output, data_only=True)
+    sheetnames = excel_doc.sheetnames
+    sheet = excel_doc[sheetnames[0]]
+    rowList = []
+    i=1
+    while sheet.cell(row = i, column = 1).value is not None:
+        a = sheet.cell(row = i, column = 1).value
+        if (type(a)) == float:
+            rowList.append(i)
+        i += 1
+    for i in reversed(rowList):
+        sheet.delete_rows(i)
+    excel_doc.save(output)
+    document = output.getvalue()
     return document
