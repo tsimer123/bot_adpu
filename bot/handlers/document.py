@@ -6,11 +6,26 @@ from aiogram import types
 from bot.create_bot import dp, bot
 from sql.engine import engine
 from sqlalchemy.types import Text
+import openpyxl as op
 
 db = engine
 async def download_document(message: types.Message) -> None:
     output = io.BytesIO()
     await message.document.download(destination = output)
+    output.getvalue()
+    excel_doc = op.open(output, data_only=True)
+    sheetnames = excel_doc.sheetnames
+    sheet = excel_doc[sheetnames[0]]
+    rowList = []
+    i=1
+    while sheet.cell(row = i, column = 1).value is not None:
+        a = sheet.cell(row = i, column = 1).value
+        if (type(a)) == float:
+            rowList.append(i)
+        i += 1
+    for i in reversed(rowList):
+        sheet.delete_rows(i)
+    excel_doc.save(output)
     output.getvalue()
     df2 = pd.read_excel(output, dtype=object)
     if df2.columns[0] == 'msisdn':
