@@ -66,6 +66,7 @@ def fit (df):
     document = output3.getvalue()
     return document
 def filtration (output):
+    output2 = BytesIO()
     output.getvalue()
     excel_doc = op.open(output, data_only=True)
     sheetnames = excel_doc.sheetnames
@@ -79,6 +80,6 @@ def filtration (output):
         i += 1
     for i in reversed(rowList):
         sheet.delete_rows(i)
-    excel_doc.save(output)
-    document = output.getvalue()
+    excel_doc.save(output2)
+    document = output2.getvalue()
     return document
