@@ -62,6 +62,9 @@ def fit (df):
     workbook = writer.book
     worksheet = writer.sheets['Лист1']
     worksheet.autofit()
+    (max_row, max_col) = df.shape
+    column_settings = [{'header': column} for column in df.columns]
+    worksheet.add_table(0, 0, max_row, max_col - 1, {'columns': column_settings, 'style': 'Table Style Medium 11' })
     workbook.close()
     document = output3.getvalue()
     return document
