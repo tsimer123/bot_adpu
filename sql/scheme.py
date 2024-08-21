@@ -4,12 +4,9 @@ from typing import Optional
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
-from sqlalchemy import String, ForeignKey, DateTime, Text, BigInteger
-
+from sqlalchemy import String, ForeignKey, DateTime, Text, BigInteger, Boolean
 from datetime import datetime
-
 from .engine import engine
-
 
 class Base(DeclarativeBase):
      pass
@@ -168,6 +165,25 @@ class SimCards(Base):
      apnpassword: Mapped[Optional[str]] = mapped_column(Text())
      issued: Mapped[Optional[str]] = mapped_column(Text())
      date_receipt:Mapped[datetime] = mapped_column(DateTime())
+
+class Meter(Base):
+     __tablename__ = "meter"
+
+     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+     user_id: Mapped[int] = mapped_column(Text())
+     username: Mapped[str] = mapped_column(Text())
+     first_name: Mapped[str] = mapped_column(Text())
+     last_name: Mapped[str] = mapped_column(Text())
+     number_meter: Mapped[str] = mapped_column(Text())
+     imei: Mapped[str] = mapped_column(Text())
+     iccid1: Mapped[str] = mapped_column(Text())
+     iccid2: Mapped[str | None] = mapped_column(Text())
+     latitude: Mapped[str] = mapped_column(Text())
+     longitude: Mapped[str] = mapped_column(Text())
+     montag: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
+     power: Mapped[Boolean] = mapped_column(Boolean())
+     created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
+     
 
 def create_db():
      Base.metadata.create_all(engine)     

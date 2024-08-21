@@ -22,9 +22,10 @@ async def command_cuba(message: types.Message) -> None:
     }
     with requests.Session() as session:
         session.post(url, headers=headers, data=payload)
-        url = 'http://192.1.0.226:8080/rest/v2/entities/pnrservices_SM160LogInfo'
+        url = 'http://192.1.0.226:8080/rest/v2/entities/pnrservices_SM160LogInfo?view=sM160LogInfo-view'
         r = session.get(url)
     df = pd.DataFrame(r.json())
+    df = df.drop(df.columns[[0, 1]], axis=1)
     filename = "output {}.xlsx".format(datetime.date.today().strftime("%d.%m.%y"))
     await bot.send_document(message.chat.id, (filename, fit(df)))
 
