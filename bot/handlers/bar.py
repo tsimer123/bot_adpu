@@ -24,6 +24,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import insert
 from sql.engine import engine
 from sql.scheme import Meter
+from sqlalchemy import text
+from sqlalchemy.types import Text
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, BigInteger, Boolean
@@ -70,15 +72,21 @@ async def get_photo_text(message: types.Message, state: FSMContext):
                 string = string.replace('-', '')
                 if (string.isdigit() and len(string)>5):
                     async with state.proxy() as data:
-                        data['number_meter'] = string
+                        if doublet('number_meter', string):
+                            data['number_meter'] = string
+                        else:
+                            return await message.reply(("Номер ПУ не уникален.\nВведите номер ПУ (цифры только)"))   
                 else:
                     return await message.reply(("Длина номера ПУ должна быть больше 5 цифр.\nВведите номер ПУ (цифры только)"))
         else:
-            return await message.reply("Введите номер ПУ вручную")
+            return await message.reply("Введите номер ПУ")
     elif message.content_type == 'text':     
         if (message.text.isdigit() and len(message.text)>5):
             async with state.proxy() as data:
-                data['number_meter'] = message.text
+                if doublet('number_meter', message.text):
+                    data['number_meter'] = message.text
+                else:
+                    return await message.reply(("Номер ПУ не уникален.\nВведите номер ПУ (цифры только)"))
         else:
             return await message.reply(("Длина номера ПУ должна быть больше 5 цифр.\nВведите номер ПУ (цифры только)"))
     await Form.next()
@@ -96,15 +104,21 @@ async def get_photo_text(message: types.Message, state: FSMContext):
                 string = string.replace('-', '')
                 if (string.isdigit() and len(string)>13 and len(string)<17):
                     async with state.proxy() as data:
-                        data['imei'] = string
+                        if doublet('imei', string):
+                            data['imei'] = string
+                        else:
+                            return await message.reply(("IMEI не уникален.\nВведите IMEI (цифры только)"))
                 else:
                     return await message.reply(("Длина IMEI должна быть 14-16 цифр.\nВведите IMEI (цифры только)")) 
         else:
-            return await message.reply("Введите IMEI вручную")
+            return await message.reply("Введите IMEI")
     elif message.content_type == 'text':     
         if (message.text.isdigit() and len(message.text)>13 and len(message.text)<17):
             async with state.proxy() as data:
-                data['imei'] = message.text
+                if doublet('imei', message.text):
+                    data['imei'] = message.text
+                else:
+                    return await message.reply(("IMEI не уникален.\nВведите IMEI (цифры только)"))
         else:
             return await message.reply(("Длина IMEI должна быть 14-16 цифр.\nВведите IMEI (цифры только)"))
     await Form.next()
@@ -125,11 +139,14 @@ async def get_photo_text(message: types.Message, state: FSMContext):
                 ]
                 if (string in items):
                     async with state.proxy() as data:
-                        data['iccid1'] = string
+                        if doublet('iccid', string):
+                            data['iccid1'] = string
+                        else:
+                            return await message.reply(("ICCID1 не уникален.\nВведите ICCID1 (цифры только)"))
                 else:
                     return await message.reply(("Длина ICCID1 должна быть из 17-19 цифр начинающихся на 89701.\nВведите ICCID1 (цифры только)"))
         else:
-            return await message.reply("Введите ICCID1 вручную")
+            return await message.reply("Введите ICCID1")
     elif message.content_type == 'text':
         items = [
         iccid.group()
@@ -137,7 +154,10 @@ async def get_photo_text(message: types.Message, state: FSMContext):
         ]
         if (message.text in items):
             async with state.proxy() as data:
-                data['iccid1'] = message.text
+                if doublet('iccid', message.text):
+                    data['iccid1'] = message.text
+                else:
+                    return await message.reply(("ICCID1 не уникален.\nВведите ICCID1 (цифры только)")) 
         else:
             return await message.reply(("Длина ICCID1 должна быть из 17-19 цифр начинающихся на 89701.\nВведите ICCID1 (цифры только)"))
     await Form.next()
@@ -158,7 +178,13 @@ async def get_photo_text(message: types.Message, state: FSMContext):
                 ]
                 if (string in items):
                     async with state.proxy() as data:
-                        data['iccid2'] = string
+                        if data['iccid1'] == string:
+                            return await message.reply(("ICCID2 не уникален.\nВведите ICCID2 (цифры только)"))
+                        else:
+                            if doublet('iccid', string):
+                                data['iccid2'] = string
+                            else:
+                                return await message.reply(("ICCID2 не уникален.\nВведите ICCID2 (цифры только)"))
                 else:
                     return await message.reply(("Длина ICCID2 должна быть из 17-19 цифр начинающихся на 89701.\nВведите ICCID2 (цифры только)"))
         else:
@@ -173,7 +199,13 @@ async def get_photo_text(message: types.Message, state: FSMContext):
                 if (message.text == "0"):
                     data['iccid2'] = None
                 else:
-                    data['iccid2'] = message.text 
+                    if data['iccid1'] == message.text:
+                            return await message.reply(("ICCID2 не уникален.\nВведите ICCID2 (цифры только)"))
+                    else:
+                        if doublet('iccid', message.text):
+                            data['iccid2'] = message.text
+                        else:
+                            return await message.reply(("ICCID2 не уникален.\nВведите ICCID2 (цифры только)"))
         else:
             return await message.reply(("ICCID2 должен быть из 17-19 цифр начинающихся на 89701 или 0 при отстутствии второй симки.\nВведите ICCID2 (цифры только)"))
     await Form.next()
@@ -288,7 +320,8 @@ async def process_end(message: types.Message, state: FSMContext):
             longitude = data['longitude'],
             montag = data['montag'],
             power = p,
-            created_on = dt_now)
+            created_on = dt_now,
+            state_meter = None)
         with engine.connect() as conn:
             conn.execute(stmt)
             conn.commit()
@@ -308,3 +341,18 @@ def isfloat(value):
         return True
     except ValueError:
         return False
+    
+def doublet(column, value):
+    if (column == 'iccid'):
+        stmt = f"SELECT COUNT(*) FROM meter WHERE iccid1 ='{value}' or iccid2 ='{value}' and state_meter IS null;" 
+    else:
+        stmt = f"SELECT COUNT(*) FROM meter WHERE {column} ='{value}' and state_meter IS null;"
+    with engine.connect() as conn:
+        result = conn.execute(text(stmt))
+        res=result.fetchone()[0]
+    try:
+        if res == 0:
+            return True
+    except ValueError:
+        return False
+    

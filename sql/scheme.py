@@ -155,35 +155,39 @@ class ContentsDirs(Base):
 class SimCards(Base):
      __tablename__ = "simcards"
 
-     simcards_id: Mapped[int] = mapped_column(primary_key=True)
+     simcards_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
      operator: Mapped[str] = mapped_column(Text())
      iccid: Mapped[str] = mapped_column(Text())
      msisdn: Mapped[str] = mapped_column(Text())
-     ip: Mapped[str] = mapped_column(Text())
+     ip: Mapped[str | None] = mapped_column(Text())
      apn: Mapped[Optional[str]] = mapped_column(Text())
      apnusername: Mapped[Optional[str]] = mapped_column(Text())
-     apnpassword: Mapped[Optional[str]] = mapped_column(Text())
+     password: Mapped[Optional[str]] = mapped_column(Text())
      issued: Mapped[Optional[str]] = mapped_column(Text())
-     date_receipt:Mapped[datetime] = mapped_column(DateTime())
+     date_receipt:Mapped[Optional[datetime]] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
 
 class Meter(Base):
      __tablename__ = "meter"
 
      id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
      user_id: Mapped[int] = mapped_column(Text())
-     username: Mapped[str] = mapped_column(Text())
-     first_name: Mapped[str] = mapped_column(Text())
-     last_name: Mapped[str] = mapped_column(Text())
+     username: Mapped[str | None] = mapped_column(Text())
+     first_name: Mapped[str | None] = mapped_column(Text())
+     last_name: Mapped[str | None] = mapped_column(Text())
      number_meter: Mapped[str] = mapped_column(Text())
      imei: Mapped[str] = mapped_column(Text())
      iccid1: Mapped[str] = mapped_column(Text())
      iccid2: Mapped[str | None] = mapped_column(Text())
      latitude: Mapped[str] = mapped_column(Text())
      longitude: Mapped[str] = mapped_column(Text())
-     montag: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
+     montag: Mapped[datetime] = mapped_column(
+          DateTime(), default=datetime.now, onupdate=datetime.now
+     )
      power: Mapped[Boolean] = mapped_column(Boolean())
-     created_on: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now, onupdate=datetime.now)
-     
+     created_on: Mapped[datetime] = mapped_column(
+        DateTime(), default=datetime.now, onupdate=datetime.now
+     )
+     state_meter: Mapped[str | None] = mapped_column(Text())
 
 def create_db():
      Base.metadata.create_all(engine)     
