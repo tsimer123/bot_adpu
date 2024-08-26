@@ -180,9 +180,7 @@ class Meter(Base):
      iccid2: Mapped[str | None] = mapped_column(Text())
      latitude: Mapped[str] = mapped_column(Text())
      longitude: Mapped[str] = mapped_column(Text())
-     montag: Mapped[datetime] = mapped_column(
-          DateTime(), default=datetime.now, onupdate=datetime.now
-     )
+     montag: Mapped[datetime] = mapped_column(DateTime())
      power: Mapped[Boolean] = mapped_column(Boolean())
      created_on: Mapped[datetime] = mapped_column(
         DateTime(), default=datetime.now, onupdate=datetime.now

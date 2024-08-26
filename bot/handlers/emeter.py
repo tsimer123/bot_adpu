@@ -13,10 +13,15 @@ db = engine
 async def command_emeter(message: types.Message) -> None:
     string = message.text
     string = string.split()
-    conn = db.connect()
-    sql_query = pd.read_sql("SELECT id, user_id, username, first_name, last_name, number_meter, imei, iccid1, iccid2, latitude, longitude, montag, power, created_on, state_meter FROM meter order by id;", con=conn)
-    df = pd.DataFrame(sql_query, columns = ['id', 'user_id', 'username', 'first_name', 'last_name', 'number_meter', 'imei', 'iccid1', 'iccid2', 'latitude','longitude', 'montag', 'power', 'created_on', 'state_meter'])
-    conn.close()
+    try:
+        conn = db.connect()
+        sql_query = pd.read_sql("SELECT id, user_id, username, first_name, last_name, number_meter, imei, iccid1, iccid2, latitude, longitude, montag, power, created_on, state_meter FROM meter order by id;", con=conn)
+        df = pd.DataFrame(sql_query, columns = ['id', 'user_id', 'username', 'first_name', 'last_name', 'number_meter', 'imei', 'iccid1', 'iccid2', 'latitude','longitude', 'montag', 'power', 'created_on', 'state_meter'])   
+    except Exception as ex:
+        print(ex)
+        return await message.reply("Сервис временно не доступен. Ошибка базы.")
+    finally:
+        conn.close()
     filename = "meter {}.xlsx".format(datetime.date.today().strftime("%d.%m.%y"))
     with pd.ExcelWriter(filename, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='Лист1')
@@ -27,8 +32,9 @@ async def command_emeter(message: types.Message) -> None:
         worksheet.add_table(0, 0, max_row, max_col - 1, {'columns': column_settings, 'style': 'Table Style Medium 11' })
     msg['To'] = string[1]
     attach_file_to_email(msg, filename)
-    send_mail_smtp(msg, host, login, password, filename)
-    await message.reply("Проверьте почту")
+    messageerr = "Проверьте почту"
+    send_mail_smtp(msg, host, login, password, filename, messageerr)
+    await message.reply(messageerr)
     
 load_dotenv()
 login = os.getenv('login')
@@ -46,7 +52,7 @@ def attach_file_to_email(email, filename):
         maintype, _, subtype = (mimetypes.guess_type(filename)[0] or 'application/octet-stream').partition("/")
         email.add_attachment(file_data, maintype=maintype, subtype=subtype, filename=filename)
 
-def send_mail_smtp(mail, host, username, password, filename):
+def send_mail_smtp(mail, host, username, password, filename, messageerr):
     s = smtplib.SMTP(host)
     try:
         s.starttls()
@@ -54,6 +60,8 @@ def send_mail_smtp(mail, host, username, password, filename):
         s.send_message(mail)       
     except Exception as ex:
         print(ex)
+        messageerr = ("Сервис временно не доступен. Ошибка базы.")
+        return messageerr
     finally:
         os.remove(filename)
         s.quit()
