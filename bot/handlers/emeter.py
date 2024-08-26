@@ -8,8 +8,22 @@ import xlsxwriter
 import datetime
 from aiogram import types
 from sql.engine import engine
+import logging
+
+logging.basicConfig(filename='bot.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+logging.debug('Это сообщение DEBUG')
+logging.info('Это сообщение  INFO')
+logging.warning('Это сообщение  WARNING')
+logging.error('Это сообщение ERROR')
+logging.critical('Это сообщение CRITICAL')
 
 db = engine
+load_dotenv()
+login = os.getenv('login')
+password = os.getenv('epassword')
+host = "smtp.yandex.ru"
+
 async def command_emeter(message: types.Message) -> None:
     string = message.text
     string = string.split()
@@ -23,7 +37,8 @@ async def command_emeter(message: types.Message) -> None:
         sql_query = pd.read_sql("SELECT id, user_id, username, first_name, last_name, number_meter, imei, iccid1, iccid2, latitude, longitude, montag, power, created_on, state_meter FROM meter order by id;", con=conn)
         df = pd.DataFrame(sql_query, columns = ['id', 'user_id', 'username', 'first_name', 'last_name', 'number_meter', 'imei', 'iccid1', 'iccid2', 'latitude','longitude', 'montag', 'power', 'created_on', 'state_meter'])   
     except Exception as ex:
-        print(ex)
+        logging.exception("Ошибка базы")
+        logging.exception(ex)
         return await message.reply("Сервис временно не доступен. Ошибка базы.")
     finally:
         conn.close()
@@ -39,13 +54,7 @@ async def command_emeter(message: types.Message) -> None:
     messageerr = "Проверьте почту"
     send_mail_smtp(msg, host, login, password, filename, messageerr)
     await message.reply(messageerr)
-    return
     
-load_dotenv()
-login = os.getenv('login')
-password = os.getenv('epassword')
-host = "smtp.yandex.ru"
-
 def attach_file_to_email(email, filename):
     with open(filename, 'rb') as fp:
         file_data = fp.read()
@@ -59,7 +68,8 @@ def send_mail_smtp(mail, host, username, password, filename, messageerr):
         s.login(username, password)
         s.send_message(mail)       
     except Exception as ex:
-        print(ex)
+        logging.exception("Ошибка почты")
+        logging.exception(ex)
         messageerr = ("Сервис временно не доступен. Ошибка почты.")
         return messageerr
     finally:

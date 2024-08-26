@@ -32,8 +32,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, BigI
 import time
 from datetime import date
 
-logging.basicConfig(level=logging.INFO)
-
+#logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename='bot.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 class Form(StatesGroup):
     number_meter = State()
     imei = State()
