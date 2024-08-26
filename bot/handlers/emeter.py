@@ -60,7 +60,7 @@ def send_mail_smtp(mail, host, username, password, filename, messageerr):
         s.send_message(mail)       
     except Exception as ex:
         print(ex)
-        messageerr = ("Сервис временно не доступен. Ошибка базы.")
+        messageerr = ("Сервис временно не доступен. Ошибка почты.")
         return messageerr
     finally:
         os.remove(filename)
