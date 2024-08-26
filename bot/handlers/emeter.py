@@ -13,6 +13,11 @@ db = engine
 async def command_emeter(message: types.Message) -> None:
     string = message.text
     string = string.split()
+    msg = EmailMessage()
+    msg['Subject'] = 'meter'
+    msg['From'] = login
+    msg.set_content('See attached file')
+    msg['To'] = string[1]
     try:
         conn = db.connect()
         sql_query = pd.read_sql("SELECT id, user_id, username, first_name, last_name, number_meter, imei, iccid1, iccid2, latitude, longitude, montag, power, created_on, state_meter FROM meter order by id;", con=conn)
@@ -30,21 +35,16 @@ async def command_emeter(message: types.Message) -> None:
         (max_row, max_col) = df.shape
         column_settings = [{'header': column} for column in df.columns]
         worksheet.add_table(0, 0, max_row, max_col - 1, {'columns': column_settings, 'style': 'Table Style Medium 11' })
-    msg['To'] = string[1]
     attach_file_to_email(msg, filename)
     messageerr = "Проверьте почту"
     send_mail_smtp(msg, host, login, password, filename, messageerr)
     await message.reply(messageerr)
+    return
     
 load_dotenv()
 login = os.getenv('login')
 password = os.getenv('epassword')
 host = "smtp.yandex.ru"
-
-msg = EmailMessage()
-msg['Subject'] = 'meter'
-msg['From'] = login
-msg.set_content('See attached file')
 
 def attach_file_to_email(email, filename):
     with open(filename, 'rb') as fp:
