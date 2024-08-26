@@ -47,7 +47,7 @@ class Form(StatesGroup):
 @dp.message_handler(commands='meter')
 async def command_bar(message: types.Message):
     await Form.number_meter.set()
-    await message.reply("Введите номер ПУ:\n Варианты ввода: \n - Пришлите фото с изображением штрихкода или QR-кода номера ПУ (используйте сжатие изображения при посылке, не присылайте сразу несколько штрихкодов на одном фото.)\n - Ввод номера ПУ вручную")
+    await message.reply("Введите номер ПУ:\n Варианты ввода: \n - Пришлите фото с изображением штрихкода или QR-кода номера ПУ (используйте сжатие изображения при посылке, не присылайте сразу несколько штрихкодов на одном фото.)\n - Ввод номера ПУ вручную\n - Для прекращения ввода данных отправьте команду /cancel или слово - отмена")
 
 @dp.message_handler(state='*', commands='cancel')
 @dp.message_handler(lambda msg: msg.text.lower() == 'отмена', state="*")
