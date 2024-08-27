@@ -31,21 +31,41 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, BigInteger, Boolean
 import time
 from datetime import date
+from services.command_start import start_user
+from services.log import write_log
+from services.render_replay_str import print_format_log_cmd
+
+
 
 #logging.basicConfig(level=logging.INFO)
-logging.basicConfig(filename='bot.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+#logging.basicConfig(filename='bot.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 class Form(StatesGroup):
     number_meter = State()
     imei = State()
     iccid1 = State()
     iccid2 = State()
     geo = State()
+    number_task = State()
     montag = State()
     power = State()
     end = State()
 
 @dp.message_handler(commands='meter')
 async def command_bar(message: types.Message):
+    id_user_tg = message.from_user.id
+    full_name = message.from_user.full_name
+    tg_name = message.from_user.mention
+    message_text = str(message.text)
+    list_param_log_cmd = [0, 0, id_user_tg, tg_name, full_name]
+    try:
+        users_id_db = start_user(id_user_tg, tg_name, full_name)
+        log_id_db = write_log(users_id_db, 'input', message_text)
+        list_param_log_cmd[0] = users_id_db
+        list_param_log_cmd[1] = log_id_db   
+        print_format_log_cmd(list_param_log_cmd, 'in', message_text)
+    except Exception as ex:
+        print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])
+        await message.reply('Ошибка Базы Данных (code error: 1003).\n Обратитесь к Администратору @etsimerman')
     await Form.number_meter.set()
     await message.reply("Введите номер ПУ:\n Варианты ввода: \n - Пришлите фото с изображением штрихкода или QR-кода номера ПУ (используйте сжатие изображения при посылке, не присылайте сразу несколько штрихкодов на одном фото.)\n - Ввод номера ПУ вручную\n - Для прекращения ввода данных отправьте команду /cancel или слово - отмена")
 
@@ -123,6 +143,7 @@ async def get_photo_text(message: types.Message, state: FSMContext):
             return await message.reply(("Длина IMEI должна быть 14-16 цифр.\nВведите IMEI (цифры только)"))
     await Form.next()
     await message.reply("Введите ICCID1:\n Варианты ввода: \n - Пришлите фото с изображением штрихкода или QR-кода ICCID1 (используйте сжатие изображения при посылке, не присылайте сразу несколько штрихкодов на одном фото)\n - Ввод ICCID1 вручную")
+
 @dp.message_handler(content_types=['photo', 'text'], state=Form.iccid1)
 async def get_photo_text(message: types.Message, state: FSMContext):
     if message.content_type == 'photo':
@@ -162,6 +183,7 @@ async def get_photo_text(message: types.Message, state: FSMContext):
             return await message.reply(("Длина ICCID1 должна быть из 17-19 цифр начинающихся на 89701.\nВведите ICCID1 (цифры только)"))
     await Form.next()
     await message.reply("Введите ICCID2:\n Варианты ввода: \n - 0 при отстутствии второй симки\n - Пришлите фото с изображением штрихкода или QR-кода ICCID2 (используйте сжатие изображения при посылке, не присылайте сразу несколько штрихкодов на одном фото)\n - Ввод ICCID2 вручную")
+
 @dp.message_handler(content_types=['photo', 'text'], state=Form.iccid2)
 async def get_photo_text(message: types.Message, state: FSMContext):
     if message.content_type == 'photo':
@@ -210,6 +232,7 @@ async def get_photo_text(message: types.Message, state: FSMContext):
             return await message.reply(("ICCID2 должен быть из 17-19 цифр начинающихся на 89701 или 0 при отстутствии второй симки.\nВведите ICCID2 (цифры только)"))
     await Form.next()
     await message.reply(("Введите широту и долготу\n Варианты ввода: \n - Пришлите фото (документ) с метаданными места съемки (Не используйте сжатие изображения при посылке !!!)\n - Пришлите геопозицию Телеграм выбрав место установки на карте \n - Введите широту и долготу вручную (53.0000 36.0000)"))
+
 @dp.message_handler(content_types=['document', 'text', 'location'], state=Form.geo)
 async def download_document(message: types.Message, state: FSMContext):
     if message.content_type == 'document':
@@ -242,7 +265,21 @@ async def download_document(message: types.Message, state: FSMContext):
                 return await message.reply("Введите долготу и широту в виде чисел с точками. (запятые не допускаются)")
     await Form.next()
     await bot.send_location(message.chat.id, data['latitude'], data['longitude'])
+    await message.reply("Введите номер заявки:\n Пример: \n Э-24-00-132465/522/Ю8\n Ю8-24-302-220132(425135)\n Тех учет")
+
+@dp.message_handler(content_types=['text'], state=Form.number_task)
+async def get_text_number_task(message: types.Message, state: FSMContext):
+    if message.content_type == 'text':     
+        async with state.proxy() as data:
+            if (message.text == "0"):
+                data['number_task'] = None
+            else:
+                data['number_task'] = message.text
+    else:
+        return await message.reply(("Номер заявки вводится вручную.\n Введите номер заявки или 0 при его отстутствии"))
+    await Form.next()
     await message.reply("Введите дату монтажа (2024-08-19)")   
+
 @dp.message_handler(content_types=['text'], state=Form.montag)
 async def get_photo_text(message: types.Message, state: FSMContext):
     if message.content_type == 'text':
@@ -262,9 +299,11 @@ async def get_photo_text(message: types.Message, state: FSMContext):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
     markup.add("on", "off")
     await message.reply("Состояние питания?", reply_markup=markup)
+
 @dp.message_handler(lambda message: message.text not in ["on", "off"], state=Form.power)
 async def process_power_invalid(message: types.Message):
     return await message.reply("Плохое состояние. Введите on или off.")
+
 @dp.message_handler(state=Form.power)
 async def process_power(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -283,6 +322,7 @@ async def process_power(message: types.Message, state: FSMContext):
             md.text("*ICCID2:*", data['iccid2']),
             md.text("*latitude:*", data['latitude']),
             md.text("*longitude:*", data['longitude']),
+            md.text("*number_task:*", data['number_task']),
             md.text("*montag:*", data['montag']),
             md.text("*power:*", data['power']),
             sep='\n',
@@ -318,6 +358,7 @@ async def process_end(message: types.Message, state: FSMContext):
             iccid2 = data['iccid2'],
             latitude = data['latitude'],
             longitude = data['longitude'],
+            number_task = data['number_task'],
             montag = data['montag'],
             power = p,
             created_on = dt_now,
