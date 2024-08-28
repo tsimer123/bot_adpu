@@ -35,10 +35,6 @@ from services.command_start import start_user
 from services.log import write_log
 from services.render_replay_str import print_format_log_cmd
 
-
-
-#logging.basicConfig(level=logging.INFO)
-#logging.basicConfig(filename='bot.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 class Form(StatesGroup):
     number_meter = State()
     imei = State()
@@ -52,16 +48,11 @@ class Form(StatesGroup):
 
 @dp.message_handler(commands='meter')
 async def command_bar(message: types.Message):
-    id_user_tg = message.from_user.id
-    full_name = message.from_user.full_name
-    tg_name = message.from_user.mention
     message_text = str(message.text)
-    list_param_log_cmd = [0, 0, id_user_tg, tg_name, full_name]
+    list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
     try:
-        users_id_db = start_user(id_user_tg, tg_name, full_name)
-        log_id_db = write_log(users_id_db, 'input', message_text)
-        list_param_log_cmd[0] = users_id_db
-        list_param_log_cmd[1] = log_id_db   
+        list_param_log_cmd[0] = start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name)
+        list_param_log_cmd[1] = write_log(start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name), 'input', message_text)
         print_format_log_cmd(list_param_log_cmd, 'in', message_text)
     except Exception as ex:
         print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])
@@ -75,7 +66,13 @@ async def command_cancel(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
         return
-    logging.info('Отменено на состояние %r', current_state)
+    message_text = str(message.text)
+    list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
+    list_param_log_cmd[0] = start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name)
+    list_param_log_cmd[1] = write_log(start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name), 'input', message_text)
+    textout = """Отменено на состояние {current_st}"""
+    textout = textout.format(current_st=current_state)
+    print_format_log_cmd(list_param_log_cmd, 'in', textout)
     await state.finish()
     await message.reply('Отменено', reply_markup=types.ReplyKeyboardRemove())
 
@@ -368,11 +365,22 @@ async def process_end(message: types.Message, state: FSMContext):
             conn.commit()
         await state.finish()
         await message.reply('Ok', reply_markup=types.ReplyKeyboardRemove())
+        message_text = str(message.text)
+        list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
+        list_param_log_cmd[0] = start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name)
+        list_param_log_cmd[1] = write_log(start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name), 'input', message_text)
+        print_format_log_cmd(list_param_log_cmd, 'end', message_text)
     elif  data['end'] == "❌Выйти":
         current_state = await state.get_state()
         if current_state is None:
             return
-        logging.info('Cancelling state %r', current_state)
+        message_text = str(message.text)
+        list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
+        list_param_log_cmd[0] = start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name)
+        list_param_log_cmd[1] = write_log(start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name), 'input', message_text)
+        textout = """Отменено на состояние {current_st}"""
+        textout = textout.format(current_st=current_state)
+        print_format_log_cmd(list_param_log_cmd, 'in', textout)
         await state.finish()
         await message.reply('Ok', reply_markup=types.ReplyKeyboardRemove())
 
