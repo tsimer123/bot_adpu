@@ -1,10 +1,11 @@
 import os
 import smtplib
-from email.message import EmailMessage
-from dotenv import load_dotenv
 import pandas as pd
 import xlsxwriter
 import datetime
+import aiogram
+from email.message import EmailMessage
+from dotenv import load_dotenv
 from aiogram import types
 from sql.engine import engine
 from services.command_start import start_user
@@ -28,7 +29,6 @@ async def command_emeter(message: types.Message) -> None:
         print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])
         await message.reply('Ошибка Базы Данных (code error: 1003).\n Обратитесь к Администратору @etsimerman')
     string = (message.text).split()
-    #string = string.split()
     msg = EmailMessage()
     msg['Subject'] = 'meter'
     msg['From'] = login
@@ -45,25 +45,26 @@ async def command_emeter(message: types.Message) -> None:
         conn.close()
     filename = "meter {}.xlsx".format(datetime.date.today().strftime("%d.%m.%y"))
     msg.add_attachment(fit(df), maintype='application', subtype='vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename=filename)
-    messageerr = "Проверьте почту"
-    send_mail_smtp(msg, host, login, password, messageerr, message)
-    await message.reply(messageerr)
+    send_mail_smtp(msg, host, login, password, message)
+    await message.reply(text)
 
-def send_mail_smtp(mail, host, username, password, messageerr, message):   
+def send_mail_smtp(mail, host, username, password, message):
+    global text
     try:
         s = smtplib.SMTP(host)
         s.starttls()
         s.login(username, password)
-        s.send_message(mail)       
+        s.send_message(mail)
+        s.quit()
+        text = "Проверьте почту"
     except Exception as ex:
         list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
         list_param_log_cmd[0] = start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name)
         list_param_log_cmd[1] = write_log(start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name), 'err', ex.args[0])
         print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])
-        messageerr = ("Сервис временно не доступен. Ошибка почты.")
-        return messageerr
+        text = "Сервис временно не доступен. Ошибка почты."
     finally:
-        s.quit()
+        return text
 
 def fit (df):
     output = BytesIO()
