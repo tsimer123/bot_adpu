@@ -3,7 +3,6 @@ import smtplib
 import pandas as pd
 import xlsxwriter
 import datetime
-import aiogram
 from email.message import EmailMessage
 from dotenv import load_dotenv
 from aiogram import types
@@ -45,18 +44,16 @@ async def command_emeter(message: types.Message) -> None:
         conn.close()
     filename = "meter {}.xlsx".format(datetime.date.today().strftime("%d.%m.%y"))
     msg.add_attachment(fit(df), maintype='application', subtype='vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename=filename)
-    send_mail_smtp(msg, host, login, password, message)
-    await message.reply(text)
+    await message.reply(send_mail_smtp(msg, host, login, password, message))
 
 def send_mail_smtp(mail, host, username, password, message):
-    global text
     try:
         s = smtplib.SMTP(host)
         s.starttls()
         s.login(username, password)
         s.send_message(mail)
         s.quit()
-        text = "Проверьте почту"
+        text = "Проверьте почту"      
     except Exception as ex:
         list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
         list_param_log_cmd[0] = start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name)
