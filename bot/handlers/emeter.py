@@ -1,6 +1,5 @@
 import os
 import smtplib
-import mimetypes
 from email.message import EmailMessage
 from dotenv import load_dotenv
 import pandas as pd
@@ -8,10 +7,10 @@ import xlsxwriter
 import datetime
 from aiogram import types
 from sql.engine import engine
-import logging
 from services.command_start import start_user
 from services.log import write_log
 from services.render_replay_str import print_format_log_cmd
+from io import BytesIO
 
 db = engine
 load_dotenv()
@@ -28,8 +27,8 @@ async def command_emeter(message: types.Message) -> None:
     except Exception as ex:
         print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])
         await message.reply('Ошибка Базы Данных (code error: 1003).\n Обратитесь к Администратору @etsimerman')
-    string = message.text
-    string = string.split()
+    string = (message.text).split()
+    #string = string.split()
     msg = EmailMessage()
     msg['Subject'] = 'meter'
     msg['From'] = login
@@ -45,38 +44,37 @@ async def command_emeter(message: types.Message) -> None:
     finally:
         conn.close()
     filename = "meter {}.xlsx".format(datetime.date.today().strftime("%d.%m.%y"))
-    with pd.ExcelWriter(filename, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Лист1')
-        worksheet = writer.sheets['Лист1']
-        worksheet.autofit()
-        (max_row, max_col) = df.shape
-        column_settings = [{'header': column} for column in df.columns]
-        worksheet.add_table(0, 0, max_row, max_col - 1, {'columns': column_settings, 'style': 'Table Style Medium 11' })
-    attach_file_to_email(msg, filename)
+    msg.add_attachment(fit(df), maintype='application', subtype='vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename=filename)
     messageerr = "Проверьте почту"
-    send_mail_smtp(msg, host, login, password, filename, messageerr, message)
+    send_mail_smtp(msg, host, login, password, messageerr, message)
     await message.reply(messageerr)
-    
-def attach_file_to_email(email, filename):
-    with open(filename, 'rb') as fp:
-        file_data = fp.read()
-        maintype, _, subtype = (mimetypes.guess_type(filename)[0] or 'application/octet-stream').partition("/")
-        email.add_attachment(file_data, maintype=maintype, subtype=subtype, filename=filename)
 
-def send_mail_smtp(mail, host, username, password, filename, messageerr, message):
-    s = smtplib.SMTP(host)
+def send_mail_smtp(mail, host, username, password, messageerr, message):   
     try:
+        s = smtplib.SMTP(host)
         s.starttls()
         s.login(username, password)
         s.send_message(mail)       
     except Exception as ex:
-        message_text = str(message.text)
         list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
         list_param_log_cmd[0] = start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name)
-        list_param_log_cmd[1] = write_log(start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name), 'input', message_text)
+        list_param_log_cmd[1] = write_log(start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name), 'err', ex.args[0])
         print_format_log_cmd(list_param_log_cmd, 'err', ex.args[0])
         messageerr = ("Сервис временно не доступен. Ошибка почты.")
         return messageerr
     finally:
-        os.remove(filename)
         s.quit()
+
+def fit (df):
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, index=False, sheet_name='Лист1')
+    workbook = writer.book
+    worksheet = writer.sheets['Лист1']
+    worksheet.autofit()
+    (max_row, max_col) = df.shape
+    column_settings = [{'header': column} for column in df.columns]
+    worksheet.add_table(0, 0, max_row, max_col - 1, {'columns': column_settings, 'style': 'Table Style Medium 11' })
+    workbook.close()
+    document = output.getvalue()
+    return document
