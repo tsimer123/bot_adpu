@@ -1,6 +1,7 @@
 import logging
 import aiogram.utils.markdown as md
 import re
+import asyncio
 import pandas as pd
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -47,7 +48,7 @@ class Form(StatesGroup):
     end = State()
 
 @dp.message_handler(commands='meter')
-async def command_bar(message: types.Message):
+async def command_bar(message: types.Message, state: FSMContext):
     message_text = str(message.text)
     list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
     try:
@@ -59,7 +60,19 @@ async def command_bar(message: types.Message):
         await message.reply('Ошибка Базы Данных (code error: 1003).\n Обратитесь к Администратору @etsimerman')
     await Form.number_meter.set()
     await message.reply("Введите номер ПУ:\n Варианты ввода: \n - Пришлите фото с изображением штрихкода или QR-кода номера ПУ (используйте сжатие изображения при посылке, не присылайте сразу несколько штрихкодов на одном фото.)\n - Ввод номера ПУ вручную\n - Для прекращения ввода данных отправьте команду /cancel или слово - отмена")
-
+    await asyncio.sleep(3600)
+    current_state = await state.get_state()
+    if current_state is None:
+        return
+    message_text = "таймаут"
+    list_param_log_cmd = [0, 0, message.from_user.id, message.from_user.mention, message.from_user.full_name]
+    list_param_log_cmd[0] = start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name)
+    list_param_log_cmd[1] = write_log(start_user(message.from_user.id, message.from_user.mention, message.from_user.full_name), 'input', message_text)
+    textout = """Отменено по таймауту на состояние {current_st}"""
+    textout = textout.format(current_st=current_state)
+    print_format_log_cmd(list_param_log_cmd, 'in', textout)
+    await state.finish()
+    await message.reply('Отменено по таймауту', reply_markup=types.ReplyKeyboardRemove())
 @dp.message_handler(state='*', commands='cancel')
 @dp.message_handler(lambda msg: msg.text.lower() == 'отмена', state="*")
 async def command_cancel(message: types.Message, state: FSMContext):
@@ -76,9 +89,9 @@ async def command_cancel(message: types.Message, state: FSMContext):
     await state.finish()
     await message.reply('Отменено', reply_markup=types.ReplyKeyboardRemove())
 
-@dp.message_handler(state=Form.number_meter)
+@dp.message_handler(state=Form.number_meter)    
 @dp.message_handler(content_types=['photo', 'text'], state=Form.number_meter)
-async def get_photo_text(message: types.Message, state: FSMContext):
+async def get_photo_text(message: types.Message, state: FSMContext):   
     if message.content_type == 'photo':
         await message.photo[-1].download('test.jpg')
         img = cv2.imread('test.jpg')
@@ -108,7 +121,7 @@ async def get_photo_text(message: types.Message, state: FSMContext):
             return await message.reply(("Длина номера ПУ должна быть больше 5 цифр.\nВведите номер ПУ (цифры только)"))
     await Form.next()
     await message.reply("Введите IMEI:\n Варианты ввода: \n - Пришлите фото с изображением штрихкода или QR-кода IMEI (используйте сжатие изображения при посылке, не присылайте сразу несколько штрихкодов на одном фото.)\n - Ввод IMEI вручную")
-
+    
 @dp.message_handler(content_types=['photo', 'text'], state=Form.imei)
 async def get_photo_text(message: types.Message, state: FSMContext):
     if message.content_type == 'photo':
