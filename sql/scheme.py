@@ -188,5 +188,33 @@ class Meter(Base):
      )
      state_meter: Mapped[str | None] = mapped_column(Text())
 
+class NodeUnameInfo(Base):
+     __tablename__ = "node_uname_info"
+
+     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+     nodename: Mapped[str | None] = mapped_column(Text())
+     job: Mapped[str | None] = mapped_column(Text())
+     instance: Mapped[str | None] = mapped_column(Text())
+
+class NodeNetworkReceiveBytesTotal(Base):
+     __tablename__ = "node_network_receive_bytes_total"
+
+     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+     nodename: Mapped[str | None] = mapped_column(Text())
+     job: Mapped[str | None] = mapped_column(Text())
+     instance: Mapped[str | None] = mapped_column(Text())
+     summa: Mapped[int] = mapped_column(BigInteger)
+     date: Mapped[datetime] = mapped_column(DateTime())
+
+class NodeNetworkTransmitBytesTotal(Base):
+     __tablename__ = "node_network_transmit_bytes_total"
+
+     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+     nodename: Mapped[str | None] = mapped_column(Text())
+     job: Mapped[str | None] = mapped_column(Text())
+     instance: Mapped[str | None] = mapped_column(Text())
+     summa: Mapped[int] = mapped_column(BigInteger)
+     date: Mapped[datetime] = mapped_column(DateTime())
+
 def create_db():
      Base.metadata.create_all(engine)     

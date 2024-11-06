@@ -31,7 +31,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, BigInteger, Boolean
 import time
-from datetime import date
 from services.command_start import start_user
 from services.log import write_log
 from services.render_replay_str import print_format_log_cmd
@@ -164,6 +163,7 @@ async def get_photo_text(message: types.Message, state: FSMContext):
             for obj in decoded_objects:
                 string = obj.data.decode()
                 string = string.replace('-', '')
+                if string.find('8970102') > 0 : string = string.slice(0, -1)  
                 items = [
                 iccid.group()
                 for iccid in re.finditer(r"(89701)([0-9]{12,15})", string)
