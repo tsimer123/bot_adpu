@@ -5,7 +5,6 @@
 /service_files/
 conf.py
 variables_temp.py
-/yoda/urls.py
 /yoda/
 .env
 /backup/
