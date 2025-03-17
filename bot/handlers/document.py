@@ -14,7 +14,7 @@ async def download_document(message: types.Message) -> None:
     await message.document.download(destination = output)
     df2 = pd.read_excel(BytesIO(filtration(output)), dtype=object)
     #df2.columns[0] = df2.columns[0].astype(str)
-    #df2.columns[0] = (df2.columns[0]).replace(' ', '')
+    #df2.columns[0] = (df2.columns[0]).replace(/[^\d\.\+]/g, '')
     if df2.columns[0] == 'msisdn':
         df2['msisdn'] = df2['msisdn'].astype(str)
         df2['msisdn'] = df2['msisdn'].str.strip()
@@ -36,7 +36,7 @@ async def download_document(message: types.Message) -> None:
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'iccid':
         df2['iccid'] = df2['iccid'].astype(str)
-        df2['iccid'] = df2['iccid'].str.strip()
+        df2['iccid'] = re.sub('\D', '', df2['iccid'])
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"iccid": Text()}) 
         sql_query = pd.read_sql("SELECT iccid, COALESCE(number_tel, 'Нет данных') as number_tel, COALESCE(apn, 'Нет данных') as apn, COALESCE(ip, 'Нет данных') as ip, COALESCE(state, 'Нет данных') as state, activity, COALESCE(traffic, 'Нет данных') as traffic, COALESCE(operator, 'Нет данных') as operator, COALESCE(imei, 'Нет данных') as imei FROM simki LEFT JOIN sims USING (iccid) where sims.state_in_lk='present' order by simki.index;", con=conn)
