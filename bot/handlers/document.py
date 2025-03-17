@@ -13,8 +13,9 @@ async def download_document(message: types.Message) -> None:
     output = BytesIO()
     await message.document.download(destination = output)
     df2 = pd.read_excel(BytesIO(filtration(output)), dtype=object)
-    df2.columns[0] = (df2.columns[0]).replace(' ', '')
+    #df2.columns[0] = (df2.columns[0]).replace(' ', '')
     if df2.columns[0] == 'msisdn':
+        df['msisdn'] = df['msisdn'].str.strip()
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"msisdn": Text()}) 
         sql_query = pd.read_sql("SELECT msisdn, COALESCE(iccid, 'Нет данных') as iccid, COALESCE(operator, 'Нет данных') as operator, COALESCE(ip, 'Нет данных') as ip, COALESCE(apn, 'Нет данных') as apn, COALESCE(apnusername, 'Нет данных') as apnusername, COALESCE(password, 'Нет данных') as password FROM simki LEFT JOIN simcards USING (msisdn) order by simki.index;", con=conn)
@@ -22,6 +23,7 @@ async def download_document(message: types.Message) -> None:
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'imsi':
+        df['imsi'] = df['imsi'].str.strip()
         df2 = df2.rename(columns={'imsi': 'iccid'})
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"imsi": Text()}) 
@@ -30,6 +32,7 @@ async def download_document(message: types.Message) -> None:
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'iccid':
+        df['iccid'] = df['iccid'].str.strip()
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"iccid": Text()}) 
         sql_query = pd.read_sql("SELECT iccid, COALESCE(number_tel, 'Нет данных') as number_tel, COALESCE(apn, 'Нет данных') as apn, COALESCE(ip, 'Нет данных') as ip, COALESCE(state, 'Нет данных') as state, activity, COALESCE(traffic, 'Нет данных') as traffic, COALESCE(operator, 'Нет данных') as operator, COALESCE(imei, 'Нет данных') as imei FROM simki LEFT JOIN sims USING (iccid) where sims.state_in_lk='present' order by simki.index;", con=conn)
@@ -37,6 +40,7 @@ async def download_document(message: types.Message) -> None:
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'tel':
+        df['tel'] = df['tel'].str.strip()
         df2 = df2.rename(columns={'tel': 'number_tel'})
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"number_tel": Text()}) 
@@ -45,6 +49,7 @@ async def download_document(message: types.Message) -> None:
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'ip':
+        df['ip'] = df['ip'].str.strip()
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"ip": Text()}) 
         sql_query = pd.read_sql("SELECT ip, COALESCE(msisdn, 'Нет данных') as msisdn, COALESCE(iccid, 'Нет данных') as iccid, COALESCE(operator, 'Нет данных') as operator, COALESCE(apn, 'Нет данных') as apn, COALESCE(apnusername, 'Нет данных') as apnusername, COALESCE(password, 'Нет данных') as password FROM simki LEFT JOIN simcards USING (ip) order by simki.index;", con=conn)
