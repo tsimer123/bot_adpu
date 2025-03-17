@@ -13,9 +13,10 @@ async def download_document(message: types.Message) -> None:
     output = BytesIO()
     await message.document.download(destination = output)
     df2 = pd.read_excel(BytesIO(filtration(output)), dtype=object)
-    df2.columns[0] = df2.columns[0].astype(str)
+    #df2.columns[0] = df2.columns[0].astype(str)
     #df2.columns[0] = (df2.columns[0]).replace(' ', '')
     if df2.columns[0] == 'msisdn':
+        df2['msisdn'] = df2['msisdn'].astype(str)
         df2['msisdn'] = df2['msisdn'].str.strip()
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"msisdn": Text()}) 
@@ -24,6 +25,7 @@ async def download_document(message: types.Message) -> None:
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'imsi':
+        df2['imsi'] = df2['imsi'].astype(str)
         df2['imsi'] = df2['imsi'].str.strip()
         df2 = df2.rename(columns={'imsi': 'iccid'})
         conn = db.connect()
@@ -33,6 +35,7 @@ async def download_document(message: types.Message) -> None:
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'iccid':
+        df2['iccid'] = df2['iccid'].astype(str)
         df2['iccid'] = df2['iccid'].str.strip()
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"iccid": Text()}) 
@@ -41,6 +44,7 @@ async def download_document(message: types.Message) -> None:
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'tel':
+        df2['tel'] = df2['tel'].astype(str)
         df2['tel'] = df2['tel'].str.strip()
         df2 = df2.rename(columns={'tel': 'number_tel'})
         conn = db.connect()
@@ -50,6 +54,7 @@ async def download_document(message: types.Message) -> None:
         conn.close()
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     elif df2.columns[0] == 'ip':
+        df2['ip'] = df2['ip'].astype(str)
         df2['ip'] = df2['ip'].str.strip()
         conn = db.connect()
         df2.to_sql('simki', con=conn, if_exists='replace', dtype={"ip": Text()}) 
