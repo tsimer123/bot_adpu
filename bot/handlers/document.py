@@ -75,7 +75,7 @@ async def download_document(message: types.Message) -> None:
         await bot.send_document(message.chat.id, ('response.xlsx', fit(df)))
     else:
         await message.reply(
-                    f"<b>Обрабатываются только файлы с названиями первых столбцов ip, iccid, msisdn, tel или imsi</b>",
+                    f"<b>Обрабатываются только файлы с названиями первых столбцов ip, ips, iccid, msisdn, tel или imsi</b>",
                     parse_mode = 'HTML'
         )
 def fit (df):
