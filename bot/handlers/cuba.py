@@ -34,12 +34,16 @@ async def command_cuba(message: types.Message) -> None:
         r = session.get(url)
     df = pd.DataFrame(r.json())
     df['smallVersionPo']=df['smallVersionPo'].astype(str)
+    df['bigVersionPo'] = df['bigVersionPo'].astype(str)
     df['smallVersionPo']=df['smallVersionPo'].replace(to_replace='nan', value='ffff')
-    df['smallVersionPodecimal'] = df['smallVersionPo'].map(lambda x: int (x, 16))
-    df['smallVersionPodecimal'] = df['smallVersionPodecimal'].astype(str)
-    df['VersionPo'] = '1.' + df['smallVersionPodecimal']
-    df['VersionPo'] = df['VersionPo'].replace(to_replace='1.65535', value='')
-    df = df.drop(df.columns[[0, 1, 10, 11, 13]], axis=1)
+    df['bigVersionPo'] = df['bigVersionPo'].replace(to_replace='nan', value='00')
+    df['bigVersionPo']= pd.to_numeric(df['bigVersionPo'], downcast='signed')
+    df['smallVersionPo'] = df['smallVersionPo'].map(lambda x: int (x, 16))
+    df['smallVersionPo'] = df['smallVersionPo'].astype(str)
+    df['bigVersionPo'] = df['bigVersionPo'].astype(str)
+    df['VersionPo'] = df['bigVersionPo'] + '.' + df['smallVersionPo']
+    df['VersionPo'] = df['VersionPo'].replace(to_replace='0.65535', value='')
+    df = df.drop(df.columns[[0, 1, 10, 11]], axis=1)
     filename = "output {}.xlsx".format(datetime.date.today().strftime("%d.%m.%y"))
     await bot.send_document(message.chat.id, (filename, fit(df)))
 
