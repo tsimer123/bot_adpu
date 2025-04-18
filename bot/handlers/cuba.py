@@ -38,7 +38,7 @@ async def command_cuba(message: types.Message) -> None:
     df["smallVersionPodecimal"] = df["smallVersionPodecimal"].astype(str)
     df['VersionPo'] = '1.' + df['smallVersionPodecimal']
     df['VersionPo'].replace('1.30191', '', inplace=True)
-    #df = df.drop(df.columns[[0, 1, 10, 11, 13]], axis=1)
+    ##df = df.drop(df.columns[[0, 1, 10, 11, 13]], axis=1)
     df = df.drop(df.columns[[0, 1, 13]], axis=1)
     filename = "output {}.xlsx".format(datetime.date.today().strftime("%d.%m.%y"))
     await bot.send_document(message.chat.id, (filename, fit(df)))
