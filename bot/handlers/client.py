@@ -8,6 +8,7 @@ from bot.handlers.help import command_help
 from bot.handlers.coord import command_coord
 from bot.handlers.sims import command_sims_tel_and_iccid
 from bot.handlers.imsi import command_imsi
+from bot.handlers.ip import command_ip
 from bot.handlers.msisdn import command_msisdn
 from bot.handlers.sim import command_sim
 from bot.handlers.cuba import command_cuba
@@ -24,6 +25,7 @@ def register_handler_client(db: Dispatcher):
     dp.register_message_handler(command_sims_tel_and_iccid, commands=['tel'])
     dp.register_message_handler(command_sims_tel_and_iccid, commands=['iccid'])
     dp.register_message_handler(command_imsi, commands=['imsi'])
+    dp.register_message_handler(command_ip, commands=['ip'])
     dp.register_message_handler(command_msisdn, commands=['msisdn'])
     dp.register_message_handler(command_sim, commands=['sim'])
     dp.register_message_handler(command_cuba, commands=['cuba'])
