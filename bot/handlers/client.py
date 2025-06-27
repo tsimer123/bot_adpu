@@ -9,7 +9,7 @@ from bot.handlers.coord import command_coord
 from bot.handlers.sims import command_sims_tel_and_iccid
 from bot.handlers.imsi import command_imsi
 from bot.handlers.ip import command_ip
-from bot.handlers.ip import command_ips
+from bot.handlers.ips import command_ips
 from bot.handlers.msisdn import command_msisdn
 from bot.handlers.sim import command_sim
 from bot.handlers.cuba import command_cuba
