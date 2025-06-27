@@ -13,7 +13,7 @@ async def command_ip(message: types.Message) -> None:
     string = message.text
     for ip in find_ips_ipaddress(string):    
         conn = db.connect() 
-        sql_query = pd.read_sql("select * from sims where ip = %(ip)s;", con=conn, params={'ip': ip})
+        sql_query = pd.read_sql("select operator, iccid, number_tel, ip, apn, imei from sims where ip = %(ip)s;", con=conn, params={'ip': ip})
         df = pd.DataFrame(sql_query, columns = ['operator', 'iccid', 'number_tel', 'ip', 'apn', 'imei'])
         conn.close()
         num_rows = df.shape[0]
@@ -25,7 +25,7 @@ async def command_ip(message: types.Message) -> None:
     if num_rows > 0 and num_rows < 2 :
         operator = df3['operator'].squeeze()
         iccid = df3['iccid'].squeeze() 
-        msisdn = df3['msisdn'].squeeze()
+        msisdn = df3['number_tel'].squeeze()
         ip = df3['ip'].squeeze()
         apnname = df3['apn'].squeeze()
         imei = df3['imei'].squeeze()
